@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Carnival Paradise — Neff Family Cruise 2026</title>
+  <meta name="theme-color" content="#0a1628" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #0a1628; min-height: 100vh; }
+    #root { max-width: 480px; margin: 0 auto; min-height: 100vh; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;">
+      <div style="width:40px;height:40px;border:3px solid #c9a84c;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      <div style="color:#c9a84c;font-family:Georgia,serif;font-size:14px;">Loading your cruise guide…</div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+const {
+  useState
+} = React;
+
+// ─── SHIP DECK DATA ───────────────────────────────────────────────
+const DECKS = [{
+  num: 15,
+  name: "Sun Deck",
+  color: "#0c4a6e",
+  venues: ["Open sun deck", "Observation area"],
+  yourDeck: false
+}, {
+  num: 14,
+  name: "Grand Deck",
+  color: "#075985",
+  venues: ["⛳ Mini Golf (9-hole) ← FREE", "Bocce Court", "Jogging Track", "Grand Vista Suites", "Spa & Fitness Center"],
+  yourDeck: false
+}, {
+  num: 12,
+  name: "Sports Deck",
+  color: "#0369a1",
+  venues: ["🏊 Main Pool + 7 Hot Tubs", "🎭 Camp Ocean (FWD) ← kids club FREE", "Basketball hoop", "Shuffleboard"],
+  yourDeck: false
+}, {
+  num: 11,
+  name: "Verandah Deck",
+  color: "#1e40af",
+  venues: ["💦 WaterWorks — Twister + 2 racing slides", "Splash Zone (kids)", "Serenity Adult-Only Retreat (21+)", "Hot Tubs"],
+  yourDeck: false
+}, {
+  num: 10,
+  name: "Lido Deck",
+  color: "#1d4ed8",
+  venues: ["🍔 Guy's Burger Joint ← FREE", "🌮 BlueIguana Cantina ← FREE", "🍕 Pizza Pirate (24/7) ← FREE", "🍦 Swirls Ice Cream ← FREE", "Paris Buffet ← FREE", "RedFrog Rum Bar", "BlueIguana Tequila Bar"],
+  yourDeck: false
+}, {
+  num: 9,
+  name: "Promenade Deck",
+  color: "#4f46e5",
+  venues: ["☕ JavaBlue Café", "🍣 Bonsai Sushi Express", "Alchemy Bar", "Piano Bar", "Casino", "Normandie Theater (main shows)", "Guest Services & Shore Excursions", "Cherry On Top candy shop"],
+  yourDeck: false
+}, {
+  num: 8,
+  name: "Atlantic Deck",
+  color: "#6d28d9",
+  venues: ["Suites & Balcony staterooms only"],
+  yourDeck: false
+}, {
+  num: 7,
+  name: "Empress Deck",
+  color: "#7c3aed",
+  venues: ["Balcony & Oceanview staterooms", "Self-service launderette"],
+  yourDeck: false
+}, {
+  num: 6,
+  name: "Upper Deck",
+  color: "#166534",
+  venues: ["Oceanview & Interior cabins only", "No public venues on this deck", "Self-service launderette"],
+  yourDeck: false
+}, {
+  num: 5,
+  name: "Main Deck — YOUR DECK ★",
+  color: "#7c2d12",
+  highlight: true,
+  venues: ["★ YOUR CABIN: M218 · Portside · AFT · Oceanview", "Mixed Oceanview, Interior & Balcony cabins", "Self-service launderette", "Mid-ship elevator & stairwell access"],
+  yourDeck: true
+}, {
+  num: 4,
+  name: "Riviera Deck (below yours)",
+  color: "#292524",
+  venues: ["Interior & Oceanview cabins"],
+  yourDeck: false
+}];
+
+// ─── ACCURATE SHIP MAP DATA — from official Carnival Paradise PDF ──
+const MC = {
+  cab: "#B5D4F4",
+  cabT: "#0C447C",
+  you: "#E24B4A",
+  youT: "#fff",
+  mdr: "#F4C0D1",
+  mdrT: "#72243E",
+  food: "#C0DD97",
+  foodT: "#27500A",
+  bar: "#FAC775",
+  barT: "#633806",
+  pool: "#85B7EB",
+  poolT: "#042C53",
+  ent: "#CECBF6",
+  entT: "#3C3489",
+  spa: "#9FE1CB",
+  spaT: "#085041",
+  shop: "#F0997B",
+  shopT: "#712B13",
+  crew: "#D3D1C7",
+  crewT: "#5F5E5A",
+  slide: "#378ADD",
+  slideT: "#fff"
+};
+const MAP_DECKS = [
+// ── DECK 14 — GRAND ─────────────────────────────────────────────
+// PDF confirms: Mini golf + jogging track forward/mid, open deck aft
+// No Grand Vista Suites visible on this deck in PDF — they are on Deck 15
+{
+  id: 14,
+  label: "Deck 14 — Grand",
+  mine: false,
+  note: "Mini golf wraps the forward/mid area. Jogging track circles it. 8 laps = 1 mile.",
+  port: [{
+    l: "Mini Golf\n⛳ FWD/MID",
+    c: MC.food,
+    t: MC.foodT,
+    f: 7,
+    tip: "FREE 9-hole mini golf course — forward/mid. Bright colors, great views over the pool deck below."
+  }, {
+    l: "Jogging\nTrack",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 3,
+    tip: "FREE jogging track — wraps around mini golf. 8 laps = 1 mile."
+  }, {
+    l: "Open\ndeck AFT",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 2,
+    tip: "Open sun deck aft of mini golf"
+  }],
+  stbd: [{
+    l: "Mini Golf\ncourse MID",
+    c: MC.food,
+    t: MC.foodT,
+    f: 7,
+    tip: "Mini golf 9 holes continue starboard side"
+  }, {
+    l: "Jogging\nTrack",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 3,
+    tip: "Jogging track starboard"
+  }, {
+    l: "Open\ndeck AFT",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 2,
+    tip: "Open sun deck aft"
+  }]
+},
+// ── DECK 12 FORWARD — SPORTS (SPA + CAMP OCEAN) ─────────────────
+// PDF label: "Forward Sports • Deck 12"
+// Contains: Fitness Center, Sauna, Steam, Fitness Studio, Cloud 9 Spa,
+//           Beauty Salon, Massage Rooms, Paradise Atrium open, Camp Ocean
+{
+  id: "12F",
+  label: "Deck 12 — Sports (Forward)",
+  mine: false,
+  note: "Spa & Fitness are at the FRONT. Camp Ocean kids club is here too — MID. Paradise Atrium opens through this deck mid-ship.",
+  port: [{
+    l: "Fitness\nCenter FWD",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 3,
+    tip: "FREE Fitness Center — FORWARD. Weights, treadmills, ellipticals, Kinesis wall, floor-to-ceiling windows."
+  }, {
+    l: "Sauna\n+ Steam",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 2,
+    tip: "Sauna + Steam rooms — inside Cloud 9 Spa locker rooms. Complimentary with spa access."
+  }, {
+    l: "Cloud 9\nSpa",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 3,
+    tip: "Cloud 9 Spa — massages, facials, body wraps, acupuncture, hot stone. Open 6am–10pm."
+  }, {
+    l: "Beauty\nSalon",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 2,
+    tip: "Beauty Salon — hair, nails, makeup, waxing, teeth whitening."
+  }],
+  stbd: [{
+    l: "Fitness\nStudio FWD",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 3,
+    tip: "Fitness Studio — group classes. FREE: aerobics, abs, stretching, Tai Chi. Fee: yoga, Pilates, cycling, boot camp."
+  }, {
+    l: "Massage\nRooms",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 2,
+    tip: "Spa treatment rooms — couples massage, hot stone, body wraps, acupuncture. Book ahead."
+  }, {
+    l: "Paradise\nAtrium\nopen",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Paradise Atrium — open through multiple decks mid-ship"
+  }, {
+    l: "Camp\nOcean 🎭",
+    c: MC.mdr,
+    t: MC.mdrT,
+    f: 3,
+    tip: "Camp Ocean — FREE kids club ages 2–11. Penguins (2-5), Stingrays (6-8), Sharks (9-11). Also Circle C tweens (12-14)."
+  }]
+},
+// ── DECK 12 AFT — SPORTS (WATERWORKS SLIDE ENTRY) ───────────────
+// PDF label: "Aft Sports • Deck 12"
+// Contains just the slide entrance — very small deck section
+{
+  id: "12A",
+  label: "Deck 12 — Sports (Aft)",
+  mine: false,
+  note: "This is where you ENTER the WaterWorks slides. The slides run down and LAND on Deck 11 aft.",
+  port: [{
+    l: "Open\ndeck",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 4,
+    tip: "Open sun deck aft — deck chairs, sun area"
+  }, {
+    l: "💦 Slide\nENTRY AFT",
+    c: MC.slide,
+    t: MC.slideT,
+    f: 3,
+    tip: "WaterWorks slide entrance — AFT. Enter Twister + Racing Slides here. Ride down to Deck 11."
+  }],
+  stbd: [{
+    l: "Open\ndeck",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 4,
+    tip: "Open sun deck aft starboard"
+  }, {
+    l: "💦 Slide\nENTRY AFT",
+    c: MC.slide,
+    t: MC.slideT,
+    f: 3,
+    tip: "Slide entry point starboard — Racing Slides green + orange. Must be 42 inches tall."
+  }]
+},
+// ── DECK 11 — VERANDAH ──────────────────────────────────────────
+// PDF confirms: V cabins FORWARD, atrium open mid, lifeboats mid,
+//               Carnival WaterWorks slides LAND here AFT
+{
+  id: 11,
+  label: "Deck 11 — Verandah",
+  mine: false,
+  note: "Cabins (V1–V42) are FORWARD only. WaterWorks slides LAND here at the AFT. Serenity 21+ retreat is on Deck 9 AFT — NOT on this deck.",
+  port: [{
+    l: "Cabins\nV1–V42\nFWD",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Forward cabins V1–V42 — Interior + Junior Suites. The ONLY cabins on this deck."
+  }, {
+    l: "Paradise\nAtrium\nopen",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Paradise Atrium opens through mid-ship on this deck"
+  }, {
+    l: "Lifeboats\n+ open deck",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 4,
+    tip: "Lifeboats mid-ship + open deck area. 12 lifeboats + 6 rescue boats."
+  }, {
+    l: "💦 WaterWorks\nSplash Zone\nLANDS AFT",
+    c: MC.slide,
+    t: MC.slideT,
+    f: 3,
+    tip: "WaterWorks AFT — Splash Zone fountains + spray cannons + slide LANDING AREA. Kids 3ft+ for mini racers."
+  }],
+  stbd: [{
+    l: "Cabins\nFWD",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Forward cabins starboard side"
+  }, {
+    l: "Atrium\nopen",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Atrium open mid-ship"
+  }, {
+    l: "Open deck\nmid",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 4,
+    tip: "Open deck mid-ship sun area — deck chairs, lifeboats"
+  }, {
+    l: "💦 WaterWorks\nSlides land\nAFT",
+    c: MC.slide,
+    t: MC.slideT,
+    f: 3,
+    tip: "Twister Slide (300ft) + Racing Slides end here. Splash Zone area."
+  }]
+},
+// ── DECK 10 — LIDO ──────────────────────────────────────────────
+// PDF confirms: Bridge FWD (crew), Atrium open FWD, The Patio area,
+//               Resort Pool MID, Stage MID, BlueIguana MID,
+//               Guy's Burger MID, Paris Lido Restaurant AFT,
+//               Buffet stations, Deli, Dessert Station, Pizzeria AFT
+{
+  id: 10,
+  label: "Deck 10 — Lido (all free food!)",
+  mine: false,
+  note: "Bridge at far front (crew only). Resort Pool is MID-SHIP with the Lido stage. BlueIguana + Guy's Burger are poolside. Paris Lido Restaurant (buffet) runs the AFT half with Deli, Dessert Station, and Pizzeria.",
+  port: [{
+    l: "Bridge\ncrew only",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 2,
+    tip: "Navigation Bridge — FORWARD. Crew only, not accessible to passengers."
+  }, {
+    l: "Atrium\nopen FWD",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Paradise Atrium open area forward on this deck"
+  }, {
+    l: "The Patio\n+ bars",
+    c: MC.bar,
+    t: MC.barT,
+    f: 2,
+    tip: "The Patio — open deck area with bar seating. BlueIguana Tequila Bar + Rum Bar nearby."
+  }, {
+    l: "BlueIguana\nCantina 🌮",
+    c: MC.food,
+    t: MC.foodT,
+    f: 3,
+    tip: "BlueIguana Cantina — FREE. Breakfast burritos + tacos in AM. Lunch tacos/burritos. Open breakfast + lunch only."
+  }, {
+    l: "Paris Lido\nRestaurant\nBuffet AFT",
+    c: MC.food,
+    t: MC.foodT,
+    f: 3,
+    tip: "Paris Lido Restaurant (buffet) — FREE. Breakfast, Lunch, Dinner, Late Night. Deli + Dessert Station + Pizzeria all inside."
+  }],
+  stbd: [{
+    l: "Bridge\ncrew only",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 2,
+    tip: "Navigation Bridge — crew only"
+  }, {
+    l: "Atrium\nopen FWD",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Paradise Atrium open area"
+  }, {
+    l: "Resort\nPool 🏊\n+ Stage MID",
+    c: MC.pool,
+    t: MC.poolT,
+    f: 3,
+    tip: "Resort Pool — MID-SHIP. Main pool + Lido stage for live music, contests, deck parties."
+  }, {
+    l: "Guy's\nBurger 🍔\nMID",
+    c: MC.food,
+    t: MC.foodT,
+    f: 2,
+    tip: "Guy's Burger Joint — FREE! MID-SHIP poolside. Guy Fieri burgers + hand-cut fries. Open lunch."
+  }, {
+    l: "Paris Lido\nRestaurant\nAFT",
+    c: MC.food,
+    t: MC.foodT,
+    f: 3,
+    tip: "Paris Lido buffet continues starboard. Late night snacks 11pm–1am also from here."
+  }]
+},
+// ── DECK 9 — PROMENADE ──────────────────────────────────────────
+// PDF confirms: Normandie Main Lounge (upper level) FWD,
+//               Paradise Atrium MID, Fun Shops MID,
+//               Bonsai Sushi Express MID, Club O2 MID,
+//               Majestic Casino MID, Carnival Blvd Promenade MID,
+//               JavaBlue Café MID, Leonardo Lounge MID,
+//               Rex Dance Club MID-AFT, Rotterdam Bar MID-AFT,
+//               Punchliner Comedy Club AFT, Serenity AFT (outdoor)
+{
+  id: 9,
+  label: "Deck 9 — Promenade (entertainment hub)",
+  mine: false,
+  note: "Normandie Theater upper level is FORWARD. The Paradise Atrium, shops, and casino are MID-SHIP. Rotterdam Bar + Rex Dance Club are mid-aft. Punchliner Comedy Club (Queen Mary) + Serenity 21+ retreat are at the very AFT.",
+  port: [{
+    l: "Normandie\nMain Lounge\nupper FWD",
+    c: MC.ent,
+    t: MC.entT,
+    f: 4,
+    tip: "Normandie Main Lounge upper level — FORWARD. Stage + seating. Playlist Productions shows. 2 showtimes nightly."
+  }, {
+    l: "Fun Shops\n+ Atrium MID",
+    c: MC.shop,
+    t: MC.shopT,
+    f: 3,
+    tip: "Fun Shops (retail) + Paradise Atrium mid-ship. Cherry on Top candy, Guess boutique, jewelry."
+  }, {
+    l: "Amer. Piano\nBar",
+    c: MC.bar,
+    t: MC.barT,
+    f: 2,
+    tip: "America Piano Bar — live piano entertainment nightly."
+  }, {
+    l: "JavaBlue\nCafé ☕",
+    c: MC.bar,
+    t: MC.barT,
+    f: 2,
+    tip: "JavaBlue Café — specialty coffees, lattes, cappuccinos, pastries. Fee."
+  }, {
+    l: "Rotterdam\nBar + Rex\nDance Club",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Rotterdam Bar (piano/cigars 92 seats) + Rex Dance Club (DJ, dancing). Mid-aft port."
+  }, {
+    l: "Punchliner\nComedy +\nSerenity AFT",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Punchliner Comedy Club (Queen Mary Lounge, 540 seats) — AFT. Serenity 21+ outdoor retreat accessed from here."
+  }],
+  stbd: [{
+    l: "Normandie\nLounge\nupper FWD",
+    c: MC.ent,
+    t: MC.entT,
+    f: 4,
+    tip: "Normandie Main Lounge upper level starboard. Two show times each evening."
+  }, {
+    l: "Photo\nGallery +\nClub O2",
+    c: MC.shop,
+    t: MC.shopT,
+    f: 2,
+    tip: "Photo Gallery (Pixels — touch-screen kiosks) + Club O2 teens lounge (15-17)."
+  }, {
+    l: "Bonsai\nSushi 🍣",
+    c: MC.food,
+    t: MC.foodT,
+    f: 2,
+    tip: "Bonsai Sushi Express — a-la-carte, fee. Sushi rolls, sashimi, specialties. MID-SHIP."
+  }, {
+    l: "Majestic\nCasino 🎰\nMID",
+    c: MC.bar,
+    t: MC.barT,
+    f: 3,
+    tip: "Majestic Casino — MID-SHIP. 450 seats, slots, table games, tournaments. Coinless (S&S card)."
+  }, {
+    l: "Carnival Blvd\nPromenade\n+ Leonardo",
+    c: MC.bar,
+    t: MC.barT,
+    f: 2,
+    tip: "Carnival Boulevard Promenade (230-seat live music bar) + Leonardo Lounge (dance floor). Mid-aft."
+  }, {
+    l: "Serenity\n21+ AFT 🌴",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 2,
+    tip: "Serenity Adult Retreat (21+) — AFT outdoor. 2 hot tubs, padded loungers, umbrellas. FREE. Accessed via Queen Mary Lounge."
+  }]
+},
+// ── DECK 8 — ATLANTIC ───────────────────────────────────────────
+// PDF label: "Atlantic • Deck 8"
+// PDF CLEARLY SHOWS: Normandie Main Lounge (lower theater level) FWD,
+//                    Fun Shops MID, Circle C MID, Paradise Atrium MID,
+//                    Alchemy Bar (labeled "America Piano Bar" in PDF? CHECK),
+//                    ELATION DINING ROOM MID-AFT, Galley MID-AFT,
+//                    DESTINY DINING ROOM AFT
+// *** THIS IS WHERE THE MDR RESTAURANTS ACTUALLY ARE ***
+{
+  id: 8,
+  label: "Deck 8 — Atlantic ★ MDR IS HERE",
+  mine: false,
+  note: "THE MAIN DINING ROOMS ARE ON DECK 8, not Deck 6! Elation Dining Room (mid) and Destiny Dining Room (aft) are both on this deck. The Normandie Main Lounge theater lower level is forward. Also has the Fun Shops and Circle C (tweens).",
+  port: [{
+    l: "Normandie\nMain Lounge\n(theater) FWD",
+    c: MC.ent,
+    t: MC.entT,
+    f: 4,
+    tip: "Normandie Main Lounge lower level — FORWARD. Main theater floor. Shows nightly at two times."
+  }, {
+    l: "Fun Shops\nMID",
+    c: MC.shop,
+    t: MC.shopT,
+    f: 2,
+    tip: "Fun Shops — retail mid-ship. Carnival merchandise, gifts, clothing."
+  }, {
+    l: "Circle C\n(tweens)",
+    c: MC.mdr,
+    t: MC.mdrT,
+    f: 2,
+    tip: "Circle C lounge — tweens ages 12-14. Games, activities, supervised lounge."
+  }, {
+    l: "🍽️ ELATION\nDINING ROOM\nMID-AFT",
+    c: MC.mdr,
+    t: MC.mdrT,
+    f: 4,
+    tip: "ELATION DINING ROOM — FREE multi-course dinners every night. Also port day breakfast 7-9am + sea day brunch 8:30am-noon. This is Deck 8, mid-aft."
+  }],
+  stbd: [{
+    l: "Normandie\nMain Lounge\n(theater) FWD",
+    c: MC.ent,
+    t: MC.entT,
+    f: 4,
+    tip: "Normandie theater lower level starboard — main seating floor."
+  }, {
+    l: "Atrium\nBlue Riband\nLibrary",
+    c: MC.ent,
+    t: MC.entT,
+    f: 2,
+    tip: "Paradise Atrium mid-ship + Blue Riband Library — reading room, quiet area."
+  }, {
+    l: "Galley\n(kitchen)",
+    c: MC.crew,
+    t: MC.crewT,
+    f: 2,
+    tip: "Galley — ship's main kitchen, crew only."
+  }, {
+    l: "🍽️ DESTINY\nDINING ROOM\nAFT",
+    c: MC.mdr,
+    t: MC.mdrT,
+    f: 4,
+    tip: "DESTINY DINING ROOM — FREE multi-course dinners every night. AFT on Deck 8. Port day breakfast + sea day brunch also here."
+  }]
+},
+// ── DECK 7 — EMPRESS ────────────────────────────────────────────
+// PDF label: "Empress • Deck 7"
+// Confirms: Porthole cabins forward both sides, Paradise Atrium MID,
+//           Guest Services + Carnival Adventures (Shore Excursions) MID,
+//           Art Gallery MID, cabins aft both sides
+{
+  id: 7,
+  label: "Deck 7 — Empress (Atrium + Guest Services)",
+  mine: false,
+  note: "The Paradise Atrium is MID-SHIP — the 7-story glass-domed centerpiece. Guest Services and Carnival Adventures (Shore Excursions) are right at the atrium mid-ship.",
+  port: [{
+    l: "Porthole\ncabins FWD",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Forward porthole cabins — two small round windows."
+  }, {
+    l: "Cabins\nmid-port",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Port mid-ship cabins"
+  }, {
+    l: "Guest\nServices\n+ Shore Exc",
+    c: MC.spa,
+    t: MC.spaT,
+    f: 3,
+    tip: "Guest Services (24hr) + Carnival Adventures/Shore Excursions — mid-ship at the atrium. Go here for any help, Sail & Sign issues, tour bookings."
+  }, {
+    l: "Paradise\nAtrium\nMID",
+    c: MC.ent,
+    t: MC.entT,
+    f: 3,
+    tip: "Paradise Atrium — 7-story glass dome, mid-ship. Art Gallery behind Guest Services, art auctions with sparkling wine daily."
+  }, {
+    l: "Cabins\nmid-aft",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Mid to aft port cabins"
+  }],
+  stbd: [{
+    l: "Porthole\ncabins FWD",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Forward porthole starboard cabins"
+  }, {
+    l: "Cabins\nmid",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Starboard mid-ship cabins"
+  }, {
+    l: "Art Gallery\n+ Atrium Bar",
+    c: MC.ent,
+    t: MC.entT,
+    f: 3,
+    tip: "Art Gallery (narrow hall, Park West auctions) + Atrium Bar (horseshoe-shaped at atrium base — calm, great for wine + conversation)."
+  }, {
+    l: "Cabins\nmid-aft",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Starboard mid to aft cabins"
+  }]
+},
+// ── DECK 6 — UPPER ──────────────────────────────────────────────
+// PDF label: "Upper • Deck 6"
+// PDF shows: ALL CABINS — porthole cabins forward, oceanview + interior mid,
+//            balcony cabins aft. NO public venues on this deck.
+{
+  id: 6,
+  label: "Deck 6 — Upper (cabins only)",
+  mine: false,
+  note: "Deck 6 is ALL CABINS — no restaurants or public spaces on this deck. The MDR restaurants are on Deck 8, two floors up from your cabin M218.",
+  port: [{
+    l: "Porthole\ncabins FWD\nU1–U67",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Forward porthole cabins U1–U67 — two small round windows each."
+  }, {
+    l: "Oceanview\ncabins mid\nU68–U165",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 5,
+    tip: "Mid-ship oceanview cabins U68–U165 — picture window."
+  }, {
+    l: "Balcony\ncabins AFT",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 4,
+    tip: "Aft balcony cabins — added in 2018 refit. Private balcony aft-port."
+  }],
+  stbd: [{
+    l: "Porthole\ncabins FWD",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Forward porthole starboard cabins"
+  }, {
+    l: "Interior +\nOceanview\ncabins mid",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 5,
+    tip: "Mid-ship mixed interior + oceanview cabins starboard"
+  }, {
+    l: "Balcony\ncabins AFT",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 4,
+    tip: "Aft starboard balcony cabins — 2018 refit"
+  }]
+},
+// ── DECK 5 — MAIN (YOUR DECK) ───────────────────────────────────
+// PDF label: "Main • Deck 5"
+// All cabins M1–M299. M218 is portside AFT.
+{
+  id: 5,
+  label: "Deck 5 — Main ★ YOUR DECK",
+  mine: true,
+  note: "M218 is AFT-PORTSIDE. Low cabin numbers (M1–M65) = forward porthole. Mid numbers = oceanview. M200s = AFT. The MDR (Elation + Destiny) is 3 floors up on Deck 8.",
+  port: [{
+    l: "Porthole\ncabins FWD\nM1–M65",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Forward porthole oceanview cabins M1–M65 — two small round portholes each."
+  }, {
+    l: "Oceanview\ncabins MID\nM66–M199",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 4,
+    tip: "Oceanview cabins M66–M199 — picture window, mid-ship port side."
+  }, {
+    l: "Balcony\nM222–M263\nAFT",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Balcony cabins M222–M263 — added 2018 refit, aft-port area."
+  }, {
+    l: "★ M218\nYOUR\nCABIN",
+    c: MC.you,
+    t: MC.youT,
+    f: 2,
+    tip: "YOUR CABIN M218 — AFT-PORTSIDE. Oceanview picture window. Back of the ship, port (left) side!"
+  }, {
+    l: "Aft-most\nM265+",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 1,
+    tip: "Aft-most port cabins M265 and beyond"
+  }],
+  stbd: [{
+    l: "Porthole\ncabins FWD",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Forward porthole starboard cabins"
+  }, {
+    l: "Oceanview +\nInterior MID",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 4,
+    tip: "Mixed oceanview + interior (no window) cabins mid-ship starboard"
+  }, {
+    l: "Balcony\ncabins AFT",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 2,
+    tip: "Aft starboard balcony cabins — 2018 refit"
+  }, {
+    l: "Aft stbd\ncabins",
+    c: MC.cab,
+    t: MC.cabT,
+    f: 3,
+    tip: "Aft starboard oceanview cabins — other side of hallway from M218"
+  }]
+}];
+
+// ─── ALL VERIFIED SOURCES ─────────────────────────────────────────
+// NOTE ON MDR PER-NIGHT MENUS:
+// Carnival does NOT publish per-night dinner PDFs. There is only one generic
+// MDR dinner PDF on carnival.com. The per-night menus (with actual dishes) are
+// published as photo images on profcruise.com — all 6 nights on one page.
+// The mdrNight links below go to the 6-night page on profcruise.com which shows
+// all nights as photos you can scroll through.
+const LINKS = {
+  // MDR dinner menus — per-night images on profcruise.com (all 6 nights one page)
+  mdrAll6Nights: "https://profcruise.com/carnival-6-night-dinner-menus-updated/",
+  mdrNew2026: "https://profcruise.com/carnivals-new-dinner-menus-2026/",
+  // Generic Carnival MDR dinner PDF (not per-night — shows sample menu layout)
+  mdrDinnerPDF: "https://www.carnival.com/-/media/images/explore/dining/menus/dining-room-dinner-menu.pdf",
+  // Port day breakfast — direct Carnival PDF ✓
+  mdrBreakfastPDF: "https://www.carnival.com/-/media/images/explore/dining/menus/dining-room-breakfast-menu.pdf",
+  // Sea Day Brunch — direct Carnival PDF ✓
+  mdrBrunchPDF: "https://www.carnival.com/-/media/images/explore/dining/menus/seaday-brunch-menu.pdf",
+  // Free dining — direct Carnival.com PDFs ✓
+  guysMenu: "https://www.carnival.com/-/media/images/explore/dining/menus/guys-burger-joint-menu.pdf",
+  blueIguanaLunch: "https://www.carnival.com/-/media/images/explore/dining/menus/blue-iguana-cantina-lunch-menu.pdf",
+  deliMenu: "https://www.carnival.com/-/media/images/explore/dining/menus/carnival-deli-menu.pdf",
+  roomService: "https://www.carnival.com/-/media/images/explore/dining/menus/room-service-menu.pdf",
+  // Specialty
+  chefsTable: "https://help.carnival.com/app/answers/detail/a_id/4250/",
+  bonsaiSushi: "https://www.thecarnivalcruiseblog.com/blog/bonsai-sushi-menu",
+  // Drinks
+  sodaPackage: "https://www.carnival.com/drink-packages/non-alcoholic-package/cheers-zero-proof-ZPR"
+};
+
+// ─── CORRECT DINNER SCHEDULE ─────────────────────────────────────
+// 6-night cruise (May 1–7). You sail 6 nights, there are 5 MDR dinners
+// while at sea PLUS dinner on embarkation night = 6 dinners total on ship.
+// BUT: the ship arrives May 7 at 8AM and guests DISEMBARK by ~10AM.
+// There is NO dinner on May 7 (Day 7). Dinners are Nights 1–6 only.
+// Night 6 (Wed May 6, sea day) IS the last dinner — farewell dinner.
+// The previous guide was counting correctly (6 nights = 6 dinners 1-6),
+// but the USER correctly noted there's no dinner on Night 7 (disembark day).
+// RESOLUTION: 6 nights = exactly 6 dinner services (Night 1 through Night 6).
+// Night 7 = Day 7 disembark morning, breakfast only. Showing all 6 accurately.
+
+const dinners = [{
+  num: 1,
+  date: "Fri May 1",
+  elegant: false,
+  theme: "Welcome Aboard",
+  menuLink: LINKS.mdrAll6Nights,
+  starters: ["Shrimp Cocktail", "French Onion Soup", "Caesar Salad", "Chilled Gazpacho (vegan)"],
+  mains: ["Grilled Atlantic Salmon — lemon butter, rice pilaf", "Chicken Marsala — mushroom wine sauce", "Pan-Seared Pork Tenderloin — apple chutney", "Pasta Primavera (vegan)", "Herb-Roasted Chicken — natural jus"],
+  desserts: ["⭐ Warm Chocolate Melting Cake — Carnival's signature, always available", "New York Cheesecake", "Fresh Fruit Sorbet", "Ice Cream Selection"],
+  dress: "Casual / Smart Casual",
+  note: "Boarding day — MDR opens 5 PM. Try the Melting Cake tonight!"
+}, {
+  num: 2,
+  date: "Sat May 2 (Sea Day)",
+  elegant: true,
+  theme: "Elegant Night #1 🥂",
+  menuLink: LINKS.mdrAll6Nights,
+  starters: ["Lobster Bisque", "Escargot — garlic herb butter", "Shrimp Cocktail", "Wedge Salad"],
+  mains: ["Filet Mignon — red wine demi-glace, truffle mash", "Rack of Lamb — herb crust, rosemary jus", "Catch of the Day — chef's preparation", "Chicken Roulade — spinach & feta stuffed", "Eggplant Parmigiana (vegan option available)"],
+  desserts: ["🔥 Baked Alaska — flambéed tableside!", "Chocolate Soufflé", "Crème Brûlée", "⭐ Warm Chocolate Melting Cake"],
+  dress: "ELEGANT — dress shirt + slacks for men, cocktail dress or pantsuit for women. No jeans or flip-flops.",
+  note: "First formal night. Dress up and enjoy the full fine-dining experience — it's included!"
+}, {
+  num: 3,
+  date: "Sun May 3 (Key West)",
+  elegant: false,
+  theme: "Caribbean Night",
+  menuLink: LINKS.mdrAll6Nights,
+  starters: ["Conch Chowder", "Caprese Salad", "Jerk Chicken Spring Rolls", "Mixed Green Salad"],
+  mains: ["Grilled Sea Bass — citrus beurre blanc, jasmine rice", "Chicken Piccata — lemon caper, angel hair", "BBQ Shrimp & Grits — andouille cream sauce", "Beef Shortrib — red wine braise, creamy polenta", "Pasta e Fagioli (vegan)"],
+  desserts: ["Key Lime Pie — fitting tonight!", "Crème Brûlée", "Tiramisu", "⭐ Warm Chocolate Melting Cake"],
+  dress: "Casual / Smart Casual",
+  note: "Dinner starts after sailing away from Key West (~6 PM). Perfect end to a beach day."
+}, {
+  num: 4,
+  date: "Mon May 4 (Celebration Key)",
+  elegant: false,
+  theme: "Carnival Crew Favorites 🌍",
+  menuLink: LINKS.mdrAll6Nights,
+  starters: ["Tomato Bisque", "Greek Salad", "Crab Cake — remoulade", "Chilled Melon & Prosciutto"],
+  mains: ["Pan-Seared Mahi-Mahi — mango salsa, coconut rice", "BBQ Baby Back Ribs — house glaze, coleslaw", "🌍 Chicken Tikka Masala — CREW FAVORITE (India)", "🌍 Beef Bourguignon — CREW FAVORITE (France)", "Vegetable Wellington (vegan)"],
+  desserts: ["Bread Pudding — whiskey sauce", "Cheesecake", "Chocolate Mousse", "⭐ Warm Chocolate Melting Cake"],
+  dress: "Casual / Smart Casual",
+  note: "New 2026 'Crew Favorites' section — dishes inspired by crew members' home countries. A standout menu."
+}, {
+  num: 5,
+  date: "Tue May 5 (Nassau)",
+  elegant: true,
+  theme: "Elegant Night #2 — FREE LOBSTER 🦞",
+  menuLink: LINKS.mdrNew2026,
+  starters: ["Seafood Bisque — shrimp, scallop, crab", "Beef Carpaccio — truffle oil, arugula", "Endive & Walnut Salad — gorgonzola", "Oysters Rockefeller"],
+  mains: ["🦞 LOBSTER TAIL — complimentary! First 2 per person are FREE, $5 each after", "Prime Rib — au jus, horseradish, Yorkshire pudding", "Lamb Chops — herb crusted, mint jelly", "Pan-Seared Duck Breast — cherry reduction", "Portobello Wellington (vegan)"],
+  desserts: ["🔥 Baked Alaska", "Chocolate Lava Cake", "Vanilla Panna Cotta", "Strawberry Shortcake"],
+  dress: "ELEGANT — same as Night 2. Dress up for lobster night!",
+  note: "THE night of the cruise. Order the lobster — it's free! Get two if you want."
+}, {
+  num: 6,
+  date: "Wed May 6 (Final Sea Day)",
+  elegant: false,
+  theme: "Farewell Dinner 🥂",
+  menuLink: LINKS.mdrAll6Nights,
+  starters: ["Lobster Bisque", "Smoked Salmon — capers, cream cheese", "Field Green Salad", "Soup of the Day"],
+  mains: ["Beef Tenderloin — red wine reduction, asparagus", "Pan-Seared Duck — orange glaze, wild mushroom risotto", "Catch of the Day", "Chicken Saltimbocca — prosciutto, sage", "Mushroom Risotto (vegan)"],
+  desserts: ["⭐ Warm Chocolate Melting Cake — one last one!", "Strawberry Cheesecake", "Vanilla Ice Cream Sundae", "Seasonal Sorbet"],
+  dress: "Casual / Smart Casual — last night, dress how you feel!",
+  note: "This IS the last dinner. Day 7 (May 7) is disembarkation at 8 AM — breakfast only, NO dinner served."
+}];
+
+// ─── FREE DINING ─────────────────────────────────────────────────
+const freeDining = [{
+  name: "Guy's Burger Joint 🍔",
+  hours: "Sea days — Lunch & Dinner",
+  link: LINKS.guysMenu,
+  linkLabel: "Open PDF Menu ↗",
+  badge: "FREE",
+  highlight: "Celebrity Chef Guy Fieri's poolside burgers",
+  items: [{
+    n: "The Plain Jane",
+    d: "Fresh beef, 20+ toppings at the bar"
+  }, {
+    n: "The Ringer",
+    d: "Guy's BBQ, super-melty cheese, crispy spicy onion ring"
+  }, {
+    n: "Pig Patty",
+    d: "Crispy bacon patty layered on top of beef patty"
+  }, {
+    n: "Chicken Sandwich",
+    d: "Crispy or grilled, toppings bar"
+  }, {
+    n: "Veggie Burger",
+    d: "Plant-based patty — ask for it, it's not always on the board"
+  }, {
+    n: "Hot Dog",
+    d: "All-beef frank"
+  }, {
+    n: "Hand-Cut Seasoned Fries",
+    d: "Always fresh, always hot"
+  }, {
+    n: "Coleslaw",
+    d: "Creamy fresh-made"
+  }],
+  tip: "Toppings bar: lettuce, tomato, pickles, jalapeños, onions, bacon bits, sauces & more. Go back for seconds."
+}, {
+  name: "BlueIguana Cantina 🌮",
+  hours: "Breakfast & Lunch daily",
+  link: LINKS.blueIguanaLunch,
+  linkLabel: "Open PDF Menu ↗",
+  badge: "FREE",
+  highlight: "Fresh tortillas made to order — watch them be made!",
+  items: [{
+    n: "Breakfast Tacos",
+    d: "Scrambled eggs, cheese, fresh salsa — morning only"
+  }, {
+    n: "Arepas",
+    d: "Colombian corn cakes, various fillings — morning only"
+  }, {
+    n: "Huevos Rancheros",
+    d: "Eggs, ranchero sauce, black beans — morning only"
+  }, {
+    n: "Build-Your-Own Burrito",
+    d: "Chicken, beef, or veggie — fresh salsa bar"
+  }, {
+    n: "Street Tacos",
+    d: "Corn tortilla, protein, cilantro, onion"
+  }, {
+    n: "Chips & Fresh Guac",
+    d: "House-made every day"
+  }],
+  tip: "Skip the morning buffet and hit BlueIguana for breakfast tacos — quieter and faster."
+}, {
+  name: "Carnival Deli 🥪",
+  hours: "Lunch & Dinner daily",
+  link: LINKS.deliMenu,
+  linkLabel: "Open PDF Menu ↗",
+  badge: "FREE",
+  highlight: "Hot & cold freshly-made sandwiches",
+  items: [{
+    n: "Reuben",
+    d: "Corned beef, Swiss, sauerkraut, Thousand Island on rye"
+  }, {
+    n: "Turkey Club",
+    d: "Turkey, bacon, lettuce, tomato, Swiss on sourdough"
+  }, {
+    n: "Italian Sub",
+    d: "Salami, ham, provolone, pepperoncini, Italian dressing"
+  }, {
+    n: "Pastrami on Rye",
+    d: "Hot pastrami, mustard, pickles"
+  }, {
+    n: "Chicken Caesar Wrap",
+    d: "Grilled chicken, romaine, parmesan"
+  }, {
+    n: "Veggie Wrap",
+    d: "Hummus, roasted peppers, cucumber, spinach"
+  }],
+  tip: "Great lighter option between pool time and dinner. Much shorter line than the buffet."
+}, {
+  name: "Pizza Pirate 🍕",
+  hours: "Open 24 hours — ALWAYS available",
+  link: "https://www.carnival.com/-/media/images/explore/dining/menus/pizzeria-del-capitano-menu.pdf",
+  linkLabel: "Open PDF Menu ↗",
+  badge: "FREE 24/7",
+  highlight: "Open all night — best post-comedy-show snack on the ship",
+  items: [{
+    n: "Margherita",
+    d: "Fresh mozzarella, tomato sauce, basil"
+  }, {
+    n: "Pepperoni",
+    d: "Classic — always on rotation"
+  }, {
+    n: "Quattro Formaggi",
+    d: "Four cheese blend"
+  }, {
+    n: "Prosciutto & Roasted Garlic",
+    d: "Cured ham, arugula, garlic oil"
+  }, {
+    n: "Caesar Salad",
+    d: "Always available alongside the pizza"
+  }],
+  tip: "No hours, no charge, no judgment. Midnight pizza is a rite of passage on Carnival."
+}, {
+  name: "Paris Buffet (Lido Marketplace) 🍽️",
+  hours: "Breakfast, Lunch & Dinner",
+  link: "https://www.carnival.com/-/media/images/explore/dining/menus/seaday-brunch-menu.pdf",
+  linkLabel: "Open Sea Day Brunch PDF ↗",
+  badge: "FREE",
+  highlight: "Widest variety — hot dishes, carving station, salad bar, international options",
+  items: [{
+    n: "Breakfast",
+    d: "Eggs any style, bacon, sausage, pancakes, pastries, yogurt, oatmeal, fruit"
+  }, {
+    n: "Omelette Station",
+    d: "Made-to-order omelets at breakfast — all ships"
+  }, {
+    n: "Lunch",
+    d: "Rotating hot dishes, carving station, salad bar, soups, international items"
+  }, {
+    n: "Dinner",
+    d: "Full hot buffet: pasta, steaks, prime rib, grilled chicken, salads, desserts — 6–9:30 PM"
+  }, {
+    n: "Late Night Snacks",
+    d: "Pizza, chicken tenders, hot dogs, grilled cheese, soup — 11:30 PM–2:30 AM"
+  }],
+  tip: "Dinner buffet is casual-attire — great if you're tired or not dressed for the MDR."
+}, {
+  name: "Swirls Ice Cream 🍦",
+  hours: "All day until midnight — self serve",
+  badge: "FREE",
+  highlight: "Unlimited, always there — grab a cone between any activity",
+  items: [{
+    n: "Chocolate Soft Serve",
+    d: "Rich chocolate"
+  }, {
+    n: "Vanilla Soft Serve",
+    d: "Classic vanilla"
+  }, {
+    n: "Strawberry Soft Serve",
+    d: "Fruity and sweet"
+  }, {
+    n: "Frozen Yogurt",
+    d: "Lighter option"
+  }],
+  tip: "Combine flavors! Located near the pool on the Lido Deck."
+}];
+
+// ─── SPECIALTY DINING (CARNIVAL PARADISE SPECIFIC) ───────────────
+// CONFIRMED: Carnival Paradise does NOT have Fahrenheit 555 Steakhouse
+// (confirmed by Points Guy, Cruise Radio, Cruise Critic, The Carnival Cruise Blog)
+// Paradise DOES have: Bonsai Sushi Express, JavaBlue Café, Chef's Table,
+// and MDR Steakhouse Selections (upcharge within the MDR)
+
+const specialtyDining = [{
+  name: "Chef's Table 👨‍🍳",
+  price: "$114 per person",
+  type: "SPECIAL EVENT",
+  color: "#f59e0b",
+  badge: "Most Exclusive",
+  link: LINKS.chefsTable,
+  linkLabel: "Official Carnival Info",
+  description: "An intimate multi-course private dinner hosted by the ship's Master Executive Chef. Includes a private galley tour, meet-and-greet with the culinary team, and expertly paired dishes. Cocktail reception first, then a one-of-a-kind dinner you'll never forget.",
+  highlights: ["Private galley (kitchen) tour before dinner", "Multi-course tasting menu — dishes not on any regular menu", "Expertly paired wines with each course (optional add-on)", "Signature cocktail reception to start", "Personalized attention from the Executive Chef", "Hands-down the most unique dining experience on the ship"],
+  menu_note: "Menu changes each sailing — the Chef designs it specifically. Not available to preview in advance.",
+  best_night: "Book early — very limited seats. Works any night (Nights 1–5). Many guests do it Night 3 or 4 to save Elegant Nights for MDR lobster.",
+  book: "Book before sailing at Carnival.com → My Cruise Manager → Specialty Dining",
+  verdict: "⭐⭐⭐⭐⭐ If you're splurging once, this is the one. Unlike anything else at sea."
+}, {
+  name: "MDR Steakhouse Selections 🥩",
+  price: "$25 per person add-on",
+  type: "IN-DINING UPGRADE",
+  color: "#7c3aed",
+  badge: "Best Value Splurge",
+  link: "https://profcruise.com/carnival-6-night-dinner-menus-updated/",
+  linkLabel: "MDR Menu Guide",
+  description: "Add premium steakhouse-quality cuts to your regular MDR dinner — no need to leave your table. Order a Filet Mignon or Surf & Turf in addition to your free MDR courses. It's the easiest upgrade on the ship.",
+  highlights: ["Available every night in the Main Dining Room", "No separate reservation needed", "Filet Mignon (9 oz), Surf & Turf, or Broiled Lobster Tail", "Served alongside your free MDR starters and desserts", "Just tell your waiter when ordering"],
+  menu_note: "Available every night in the MDR. On Night 5 (Elegant Night / Lobster Night), lobster is FREE — so skip the upgrade that night and save $25!",
+  best_night: "Best on Night 3 (casual Caribbean night) or Night 6 (farewell dinner) — skip Night 5 since lobster is already free.",
+  book: "No advance booking needed — tell your server when you sit down.",
+  verdict: "⭐⭐⭐⭐ Best value: adds luxury to a meal you're already having, for just $25/person."
+}, {
+  name: "Bonsai Sushi Express 🍣",
+  price: "À la carte — pay per item",
+  type: "SPECIALTY RESTAURANT",
+  color: "#0e7490",
+  badge: "Flexible Budget",
+  link: LINKS.bonsaiSushi,
+  linkLabel: "View Full Sushi Menu PDF",
+  description: "Fresh-to-order sushi, sashimi, and specialty rolls — grab-and-go or sit down. On the Carnival Paradise this is the Express version, lighter and more casual than the full Bonsai Sushi on larger ships. Great for a lighter dinner or sea-day lunch splurge.",
+  highlights: ["Sushi & Sashimi: $2.50 per piece", "California Roll: $9", "Spicy Tuna Roll: $9", "Bang Bang Bonsai Roll: $10", "Tempura Roll: $10", "Ship for 2 Platter (shareable): $34", "Bento Box: $17", "Ramen Bowl: $8", "Green Tea Cupcake / Yuzu Custard: $3 each"],
+  menu_note: "À la carte means you only pay for what you order — spend $9 or $50, your choice. Open sea days for lunch and nightly for dinner.",
+  best_night: "Sea day lunch is the best time — no pressure, grab a roll by the pool.",
+  book: "No reservation needed — walk in.",
+  verdict: "⭐⭐⭐⭐ Surprisingly good for express sushi. Great for a light, affordable treat."
+}, {
+  name: "JavaBlue Café ☕",
+  price: "$3–$8 per drink or pastry",
+  type: "SPECIALTY CAFÉ",
+  color: "#166534",
+  badge: "Coffee Lovers",
+  link: "https://profcruise.com/updated-carnival-food-menus-2026/",
+  linkLabel: "2026 Café Info",
+  description: "Specialty coffee shop serving lattes, cappuccinos, espresso drinks, teas, and fresh-baked pastries. The free MDR coffee is drip coffee only — if you want a proper latte or cappuccino, this is your spot. Open early morning through evening.",
+  highlights: ["Lattes, cappuccinos, espresso drinks ($4–$6)", "Iced specialty coffees ($4–$6)", "Hot teas and specialty blends", "Fresh pastries, cakes, and cookies ($3–$5)", "Morning hours great for coffee before a port day"],
+  menu_note: "Note: the soda package does NOT cover JavaBlue drinks. Pay à la carte or use onboard credit.",
+  best_night: "Morning of every port day — grab a latte before heading off the ship.",
+  book: "Walk in, no reservation.",
+  verdict: "⭐⭐⭐ Worth it if you need real espresso. Skip if free drip coffee is fine for you."
+}, {
+  name: "❌ No Fahrenheit 555 Steakhouse",
+  price: "N/A",
+  type: "NOT ON THIS SHIP",
+  color: "#ef4444",
+  badge: "Important Note",
+  link: "https://cruiseradio.net/carnival-cruise-steakhouse-review-and-menu-2019/",
+  linkLabel: "Source: Cruise Radio",
+  description: "Carnival Paradise does NOT have the Fahrenheit 555 Steakhouse. This is confirmed by multiple sources including The Points Guy, Cruise Radio, and The Carnival Cruise Blog. The Paradise is a Fantasy-class ship and was built without the steakhouse venue. Your special night options are the Chef's Table, MDR Steakhouse Selections, or Bonsai Sushi Express.",
+  highlights: ["No Fahrenheit 555 on Carnival Paradise", "No Fahrenheit 555 on Carnival Elation either", "Both are Fantasy-class ships — they predate the steakhouse era", "Chef's Table ($114/person) is the premium alternative", "MDR Steakhouse Selections ($25/person) is the value alternative"],
+  menu_note: "Previous versions of this guide listed the steakhouse — that was an error. Verified and corrected.",
+  best_night: "N/A",
+  book: "N/A",
+  verdict: "Go with the Chef's Table for a truly special night."
+}];
+const mdrInfo = [{
+  label: "Destiny Restaurant",
+  detail: "Main dining room — all dinners, breakfast (port days), brunch (sea days)"
+}, {
+  label: "Elation Restaurant",
+  detail: "Second main dining room — same menus as Destiny, different location"
+}, {
+  label: "Early Seating",
+  detail: "5:00 PM fixed — same table, same waiter every night"
+}, {
+  label: "Late Seating",
+  detail: "7:45 PM fixed — same table, same waiter every night"
+}, {
+  label: "Anytime Dining",
+  detail: "5:00–9:00 PM — flexible, seat yourself each night"
+}, {
+  label: "Port Day Breakfast",
+  detail: "7:00–9:00 AM in MDR — quieter than the buffet"
+}, {
+  label: "Sea Day Brunch",
+  detail: "8:30 AM–12:00 PM — DO NOT MISS THIS"
+}, {
+  label: "Sea Day Tea Time",
+  detail: "3:00–4:00 PM — light snacks in the MDR"
+}, {
+  label: "Entrees",
+  detail: "Up to 2 free per person per night — 3rd+ is $5 each"
+}, {
+  label: "Appetizers",
+  detail: "UNLIMITED and free — order as many as you want"
+}, {
+  label: "Desserts",
+  detail: "UNLIMITED and free — the Melting Cake is famous"
+}, {
+  label: "Lobster Night",
+  detail: "Night 5 (Elegant Night #2) — first 2 tails FREE, $5 each after"
+}];
+
+// ─── FONTS & GLOBAL STYLES injected once ─────────────────────────
+const GlobalStyles = () => /*#__PURE__*/React.createElement("style", null, `
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0a1628;
+      --navy2:  #0f2040;
+      --navy3:  #162d55;
+      --gold:   #c9a84c;
+      --gold2:  #e8c96a;
+      --gold3:  #f5e4b0;
+      --cream:  #faf6ef;
+      --mist:   rgba(201,168,76,0.12);
+      --border: rgba(201,168,76,0.22);
+      --text:   #e8dcc8;
+      --muted:  #8a9bb5;
+      --serif:  'Playfair Display', Georgia, serif;
+      --sans:   'Jost', system-ui, sans-serif;
+    }
+
+    body { background: var(--navy); font-family: var(--sans); color: var(--text); }
+
+    /* Tab bar scroll hide */
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-bar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Card hover lift */
+    .card-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .card-lift:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+
+    /* Accordion */
+    .accord-btn { width:100%; background:none; border:none; cursor:pointer; font-family:var(--sans); text-align:left; }
+    .accord-btn:hover { background: rgba(201,168,76,0.06); }
+
+    /* Deck zone hover tooltip */
+    .dzone { position:relative; cursor:help; transition: filter 0.15s; }
+    .dzone:hover { filter: brightness(1.15); }
+    .dzone .dtip {
+      display:none; position:absolute; bottom:calc(100% + 6px); left:50%;
+      transform:translateX(-50%); background:var(--navy2); border:1px solid var(--border);
+      border-radius:8px; padding:7px 11px; font-size:11px; color:var(--cream);
+      white-space:nowrap; z-index:50; pointer-events:none; font-family:var(--sans);
+      box-shadow:0 8px 24px rgba(0,0,0,0.5);
+    }
+    .dzone:hover .dtip { display:block; }
+
+    /* Fade-in animation */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.35s ease forwards; }
+
+    /* Free badge */
+    .free-badge {
+      font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+      background: rgba(201,168,76,0.15); color: var(--gold2);
+      border:1px solid rgba(201,168,76,0.3); border-radius:4px;
+      padding:2px 6px; flex-shrink:0;
+    }
+
+    /* Night badge */
+    .night-chip {
+      display:inline-block; font-size:9px; font-weight:600; letter-spacing:1.5px;
+      text-transform:uppercase; color:var(--gold); border:1px solid var(--border);
+      border-radius:20px; padding:3px 10px; margin-bottom:6px;
+    }
+    .elegant-chip {
+      background:rgba(201,168,76,0.15); color:var(--gold2);
+      border:1px solid rgba(201,168,76,0.4); border-radius:20px;
+      font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+      padding:3px 9px; display:inline-block; margin-left:8px;
+    }
+
+    /* Divider line */
+    .gold-rule { border:none; border-top:1px solid var(--border); margin:0; }
+
+    /* Deck map zone text */
+    .dzone-txt { font-size:8px; font-weight:600; text-align:center; line-height:1.25; pointer-events:none; font-family:var(--sans); }
+
+    /* Navigation arrow hover */
+    .nav-row { display:flex; justify-content:space-between; align-items:center; padding:9px 14px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .nav-row:last-child { border-bottom:none; }
+    .nav-pill { font-size:10px; border-radius:5px; padding:3px 8px; white-space:nowrap; flex-shrink:0; margin-left:10px; font-family:var(--sans); }
+  `);
+
+// ─── SMALL REUSABLE PIECES ────────────────────────────────────────
+
+const WaveDivider = () => /*#__PURE__*/React.createElement("div", {
+  style: {
+    height: 1,
+    background: "linear-gradient(90deg, transparent, var(--gold), transparent)",
+    opacity: 0.4,
+    margin: "0 0"
+  }
+});
+const SectionLabel = ({
+  children
+}) => /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontFamily: "var(--sans)",
+    fontSize: 9,
+    fontWeight: 600,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    color: "var(--gold)",
+    marginBottom: 6
+  }
+}, children);
+
+// ─── TAB: MDR DINNERS ─────────────────────────────────────────────
+
+function DinnersTab({
+  openDinner,
+  setOpenDinner
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "20px 16px 90px"
+    },
+    className: "fade-up"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "var(--navy2)",
+      border: "1px solid var(--border)",
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "Your 6-Night MDR Schedule"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 20,
+      color: "var(--cream)",
+      marginBottom: 8
+    }
+  }, "Dinner Every Night \u2014 Free"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "var(--muted)",
+      lineHeight: 1.7,
+      marginBottom: 14
+    }
+  }, "Destiny & Elation MDR restaurants are on Deck 8 (Atlantic) \u2014 3 floors above your cabin M218. Night 5 includes ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--gold2)"
+    }
+  }, "free lobster \uD83E\uDD9E"), ". Day 7 is disembark \u2014 breakfast only, no dinner."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, [["6 Dinners", "Nights 1–6"], ["Free Lobster", "Night 5 🦞"], ["Elegant Nights", "2 & 5 ✨"], ["Day 7", "Breakfast only"]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: {
+      background: "rgba(255,255,255,0.04)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: 8,
+      padding: "6px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      color: "var(--muted)",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, l), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: "var(--gold3)"
+    }
+  }, v))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, dinners.map((d, i) => {
+    const open = openDinner === i;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      className: "card-lift",
+      style: {
+        background: "var(--navy2)",
+        border: `1px solid ${d.elegant ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.07)"}`,
+        borderRadius: 12,
+        overflow: "hidden"
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "accord-btn",
+      onClick: () => setOpenDinner(open ? null : i),
+      style: {
+        padding: "13px 16px",
+        color: "var(--text)"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "night-chip"
+    }, "Night ", d.num), d.elegant && /*#__PURE__*/React.createElement("span", {
+      className: "elegant-chip"
+    }, "Elegant Night \u2728")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "var(--serif)",
+        fontSize: 16,
+        color: "var(--cream)",
+        marginBottom: 2
+      }
+    }, d.theme), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "var(--muted)"
+      }
+    }, d.date)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--gold)",
+        fontSize: 16,
+        marginLeft: 10,
+        flexShrink: 0
+      }
+    }, open ? "−" : "+"))), open && /*#__PURE__*/React.createElement("div", {
+      style: {
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        padding: "14px 16px"
+      }
+    }, d.dress && /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: d.elegant ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.04)",
+        border: `1px solid ${d.elegant ? "rgba(201,168,76,0.25)" : "rgba(255,255,255,0.07)"}`,
+        borderRadius: 7,
+        padding: "6px 11px",
+        marginBottom: 12,
+        fontSize: 11,
+        color: d.elegant ? "var(--gold3)" : "var(--muted)"
+      }
+    }, "\uD83D\uDC57 ", d.dress), d.starters?.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        fontWeight: 600,
+        letterSpacing: 1.5,
+        color: "var(--gold)",
+        textTransform: "uppercase",
+        marginBottom: 5
+      }
+    }, "Starters"), d.starters.map((s, si) => /*#__PURE__*/React.createElement("div", {
+      key: si,
+      style: {
+        fontSize: 12,
+        color: "var(--text)",
+        padding: "3px 0",
+        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        display: "flex",
+        gap: 7
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--gold)",
+        opacity: 0.5
+      }
+    }, "\xB7"), s))), d.mains?.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        fontWeight: 600,
+        letterSpacing: 1.5,
+        color: "var(--gold)",
+        textTransform: "uppercase",
+        marginBottom: 5
+      }
+    }, "Mains"), d.mains.map((m, mi) => /*#__PURE__*/React.createElement("div", {
+      key: mi,
+      style: {
+        fontSize: 12,
+        color: "var(--cream)",
+        fontWeight: m.includes("LOBSTER") ? 600 : 400,
+        padding: "3px 0",
+        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        display: "flex",
+        gap: 7
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--gold)",
+        opacity: 0.5
+      }
+    }, "\xB7"), m))), d.desserts?.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        fontWeight: 600,
+        letterSpacing: 1.5,
+        color: "var(--gold)",
+        textTransform: "uppercase",
+        marginBottom: 5
+      }
+    }, "Desserts"), d.desserts.map((ds, di) => /*#__PURE__*/React.createElement("div", {
+      key: di,
+      style: {
+        fontSize: 12,
+        color: "var(--text)",
+        padding: "3px 0",
+        borderBottom: "1px solid rgba(255,255,255,0.04)",
+        display: "flex",
+        gap: 7
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--gold)",
+        opacity: 0.5
+      }
+    }, "\xB7"), ds))), d.note && /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: "rgba(201,168,76,0.06)",
+        borderLeft: "3px solid var(--gold)",
+        padding: "7px 10px",
+        borderRadius: "0 6px 6px 0",
+        fontSize: 11,
+        color: "var(--gold3)",
+        lineHeight: 1.55,
+        marginBottom: 12
+      }
+    }, "\uD83D\uDCA1 ", d.note), d.menuLink && /*#__PURE__*/React.createElement("a", {
+      href: d.menuLink,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        padding: "9px 14px",
+        borderRadius: 8,
+        background: "rgba(201,168,76,0.08)",
+        border: "1px solid rgba(201,168,76,0.25)",
+        fontSize: 11,
+        color: "var(--gold2)",
+        textDecoration: "none",
+        fontWeight: 600
+      }
+    }, "\uD83D\uDCCB View Night ", d.num, " Menu Photos \u2197")));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 20
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "MDR Details"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 6
+    }
+  }, mdrInfo.map((m, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: "rgba(255,255,255,0.03)",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 8,
+      padding: "10px 14px",
+      display: "flex",
+      gap: 12,
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16,
+      flexShrink: 0
+    }
+  }, m.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 600,
+      color: "var(--cream)",
+      marginBottom: 2
+    }
+  }, m.title), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "var(--muted)",
+      lineHeight: 1.5
+    }
+  }, m.detail)))))));
+}
+
+// ─── TAB: FREE DINING ─────────────────────────────────────────────
+
+function FreeDiningTab({
+  openFree,
+  setOpenFree
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "20px 16px 90px"
+    },
+    className: "fade-up"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "Always Free \u2014 No Extra Charge"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 18,
+      color: "var(--cream)"
+    }
+  }, "All Included Dining")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, freeDining.map((v, i) => {
+    const open = openFree === i;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      className: "card-lift",
+      style: {
+        background: "var(--navy2)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 12,
+        overflow: "hidden"
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "accord-btn",
+      onClick: () => setOpenFree(open ? null : i),
+      style: {
+        padding: "13px 16px",
+        color: "var(--text)"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, v.emoji), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: "var(--serif)",
+        fontSize: 15,
+        color: "var(--cream)"
+      }
+    }, v.name), /*#__PURE__*/React.createElement("span", {
+      className: "free-badge"
+    }, v.badge)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "var(--muted)",
+        paddingLeft: 26
+      }
+    }, v.hours)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--gold)",
+        fontSize: 16,
+        flexShrink: 0,
+        marginLeft: 8
+      }
+    }, open ? "−" : "+"))), open && /*#__PURE__*/React.createElement("div", {
+      style: {
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        padding: "12px 16px"
+      }
+    }, v.highlight && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "var(--gold3)",
+        fontStyle: "italic",
+        marginBottom: 10
+      }
+    }, "\"", v.highlight, "\""), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 7,
+        marginBottom: 12
+      }
+    }, v.items.map((item, ii) => /*#__PURE__*/React.createElement("div", {
+      key: ii,
+      style: {
+        borderBottom: ii < v.items.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+        paddingBottom: 7
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "var(--cream)",
+        fontWeight: 500,
+        marginBottom: 2
+      }
+    }, item.n), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "var(--muted)"
+      }
+    }, item.d)))), v.tip && /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: "rgba(201,168,76,0.08)",
+        borderLeft: "3px solid var(--gold)",
+        padding: "8px 12px",
+        borderRadius: "0 6px 6px 0",
+        fontSize: 11,
+        color: "var(--gold3)",
+        lineHeight: 1.5
+      }
+    }, "\uD83D\uDCA1 ", v.tip), v.link && /*#__PURE__*/React.createElement("a", {
+      href: v.link,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        marginTop: 12,
+        padding: "9px 14px",
+        borderRadius: 8,
+        background: "rgba(201,168,76,0.08)",
+        border: "1px solid rgba(201,168,76,0.25)",
+        fontSize: 11,
+        color: "var(--gold2)",
+        textDecoration: "none",
+        fontWeight: 600
+      }
+    }, "\uD83D\uDCC4 ", v.linkLabel)));
+  })));
+}
+
+// ─── TAB: SPECIAL NIGHT ───────────────────────────────────────────
+
+function SpecialTab({
+  openSpec,
+  setOpenSpec
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "20px 16px 90px"
+    },
+    className: "fade-up"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "Upgrade Your Evening"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 18,
+      color: "var(--cream)",
+      marginBottom: 6
+    }
+  }, "Specialty Dining"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "var(--muted)",
+      lineHeight: 1.6
+    }
+  }, "No Fahrenheit 555 Steakhouse on the Paradise \u2014 but these options are excellent alternatives.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, specialtyDining.map((v, i) => {
+    const open = openSpec === i;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      className: "card-lift",
+      style: {
+        background: "var(--navy2)",
+        border: `1px solid ${i === 0 ? "rgba(201,168,76,0.35)" : "rgba(255,255,255,0.07)"}`,
+        borderRadius: 12,
+        overflow: "hidden"
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "accord-btn",
+      onClick: () => setOpenSpec(open ? null : i),
+      style: {
+        padding: "13px 16px",
+        color: "var(--text)"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: "var(--serif)",
+        fontSize: 15,
+        color: "var(--cream)"
+      }
+    }, v.name), v.badge && /*#__PURE__*/React.createElement("span", {
+      className: "free-badge",
+      style: {
+        color: v.badge === "FREE" ? "var(--gold2)" : "#86efac",
+        borderColor: v.badge === "FREE" ? "rgba(201,168,76,0.3)" : "rgba(134,239,172,0.3)",
+        background: v.badge === "FREE" ? "rgba(201,168,76,0.1)" : "rgba(134,239,172,0.1)"
+      }
+    }, v.badge)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "var(--muted)"
+      }
+    }, v.price)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--gold)",
+        fontSize: 16,
+        flexShrink: 0,
+        marginLeft: 8
+      }
+    }, open ? "−" : "+"))), open && /*#__PURE__*/React.createElement("div", {
+      style: {
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        padding: "12px 16px"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "var(--muted)",
+        lineHeight: 1.7,
+        marginBottom: 10
+      }
+    }, v.description), v.items && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+        marginBottom: 10
+      }
+    }, v.items.map((item, ii) => /*#__PURE__*/React.createElement("div", {
+      key: ii,
+      style: {
+        display: "flex",
+        gap: 10,
+        paddingBottom: 6,
+        borderBottom: ii < v.items.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "var(--cream)",
+        fontWeight: 500,
+        flex: 1
+      }
+    }, item.n), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "var(--muted)",
+        flex: 2
+      }
+    }, item.d)))), v.tip && /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: "rgba(201,168,76,0.08)",
+        borderLeft: "3px solid var(--gold)",
+        padding: "8px 12px",
+        borderRadius: "0 6px 6px 0",
+        fontSize: 11,
+        color: "var(--gold3)",
+        lineHeight: 1.5
+      }
+    }, "\uD83D\uDCA1 ", v.tip)));
+  })));
+}
+
+// ─── TAB: ZERO PROOF ─────────────────────────────────────────────
+
+function SodaTab() {
+  const items = [{
+    cat: "Coca-Cola & Sodas",
+    list: ["Coke, Diet Coke, Coke Zero, Sprite, Dr Pepper, Barq's Root Beer, Ginger Ale, Tonic Water, Club Soda"]
+  }, {
+    cat: "Juices",
+    list: ["Orange, Apple, Cranberry, Pineapple, Grapefruit, Tomato, Lemonade"]
+  }, {
+    cat: "Specialty Coffees",
+    list: ["Lattes, Cappuccinos, Americanos, Espresso, Mochas, Chai Lattes — at JavaBlue Café & bars"]
+  }, {
+    cat: "Water",
+    list: ["Still bottled water, Sparkling water, Coconut water — all included"]
+  }, {
+    cat: "Non-Alcoholic Frozen Drinks",
+    list: ["Frozen lemonades, Smoothies, Tropical frozen mocktails (Piña Colada, Strawberry Daiquiri, etc.)"]
+  }, {
+    cat: "Mocktails (21+ req.)",
+    list: ["Virgin versions of Alchemy Bar cocktails, specialty non-alcoholic drinks, mocktail menu"]
+  }, {
+    cat: "Non-Alc Beer (21+ req.)",
+    list: ["Athletic Brewing, Heineken 0.0, and other non-alcoholic beers"]
+  }, {
+    cat: "Extras",
+    list: ["Milkshakes, Energy drinks (Red Bull NA), Hot chocolate, Hot teas, Bottled Gatorade"]
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "20px 16px 90px"
+    },
+    className: "fade-up"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "linear-gradient(135deg, rgba(124,58,237,0.15), rgba(109,40,217,0.08))",
+      border: "1px solid rgba(167,139,250,0.25)",
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "Drink Package"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 20,
+      color: "var(--cream)",
+      marginBottom: 8
+    }
+  }, "CHEERS! Zero Proof"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "var(--muted)",
+      lineHeight: 1.7,
+      marginBottom: 14
+    }
+  }, "Non-alcoholic package \u2014 all the variety without the alcohol. Unlike the regular CHEERS! package, not every adult in the cabin is required to purchase it."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, [["Per Person/Day", "~$29.99 + 20% svc"], ["3 People × 6 Days", "~$648 total"], ["All Cabins", "Not required for all"], ["Best For", "Non-drinkers & Camden"]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: {
+      background: "rgba(255,255,255,0.05)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: 8,
+      padding: "6px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      color: "var(--muted)",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, l), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: "#c4b5fd"
+    }
+  }, v))))), /*#__PURE__*/React.createElement(SectionLabel, null, "What's Included"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      marginBottom: 20
+    }
+  }, items.map((cat, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: "var(--navy2)",
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderRadius: 10,
+      padding: "11px 14px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: "var(--gold2)",
+      marginBottom: 5
+    }
+  }, cat.cat), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "var(--muted)",
+      lineHeight: 1.6
+    }
+  }, cat.list[0])))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "rgba(239,68,68,0.08)",
+      border: "1px solid rgba(239,68,68,0.2)",
+      borderRadius: 10,
+      padding: "11px 14px",
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: "#fca5a5",
+      marginBottom: 4
+    }
+  }, "Not Included"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "var(--muted)",
+      lineHeight: 1.6
+    }
+  }, "Alcoholic beverages \xB7 Celebration Key drinks (ship packages don't work on the private island) \xB7 Room service drinks \xB7 Any venue not operated by Carnival")), /*#__PURE__*/React.createElement("a", {
+    href: LINKS.sodaPackage,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 8,
+      padding: "13px",
+      borderRadius: 10,
+      background: "rgba(124,58,237,0.15)",
+      border: "1px solid rgba(167,139,250,0.3)",
+      color: "#c4b5fd",
+      fontSize: 12,
+      textDecoration: "none",
+      fontWeight: 600
+    }
+  }, "\u2192 Buy CHEERS! Zero Proof on Carnival.com"));
+}
+
+// ─── TAB: SHIP MAP ────────────────────────────────────────────────
+
+function MapTab({
+  activeDeck,
+  setActiveDeck
+}) {
+  const d = MAP_DECKS[activeDeck];
+  const Lane = ({
+    zones
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 2,
+      height: 58
+    }
+  }, zones.map((z, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "dzone",
+    style: {
+      flex: z.f,
+      background: z.c,
+      borderRadius: 4,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "2px 3px"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "dzone-txt",
+    style: {
+      color: z.t
+    }
+  }, z.l), /*#__PURE__*/React.createElement("span", {
+    className: "dtip"
+  }, z.tip))));
+  const navRows = [{
+    dest: "Destiny / Elation MDR (free dinners)",
+    how: "Up 3 decks → Deck 8 AFT",
+    q: true
+  }, {
+    dest: "Normandie Theater (shows)",
+    how: "Up 3 decks → Deck 8 FORWARD",
+    q: true
+  }, {
+    dest: "Guest Services + Shore Excursions",
+    how: "Up 2 decks → Deck 7 MID (atrium)",
+    q: true
+  }, {
+    dest: "Paris Lido Buffet, Deli, Pizza, Swirls",
+    how: "Up 5 decks → Deck 10 AFT",
+    q: true
+  }, {
+    dest: "Guy's Burger + BlueIguana Cantina",
+    how: "Up 5 decks → Deck 10 MID",
+    q: true
+  }, {
+    dest: "Resort Pool + Lido Stage",
+    how: "Up 5 decks → Deck 10 MID",
+    q: true
+  }, {
+    dest: "WaterWorks Splash Zone (slide landing)",
+    how: "Up 6 decks → Deck 11 AFT",
+    q: true
+  }, {
+    dest: "Camp Ocean kids club",
+    how: "Up 7 decks → Deck 12 FWD",
+    q: true
+  }, {
+    dest: "WaterWorks slide ENTRY point",
+    how: "Up 7 decks → Deck 12 AFT",
+    q: true
+  }, {
+    dest: "Casino + Bonsai Sushi",
+    how: "Up 4 decks → Deck 9 MID",
+    q: true
+  }, {
+    dest: "Punchliner Comedy Club",
+    how: "Up 4 decks → Deck 9 AFT",
+    q: true
+  }, {
+    dest: "Serenity 21+ Retreat",
+    how: "Up 4 decks → Deck 9 AFT (outdoor)",
+    q: false
+  }, {
+    dest: "Cloud 9 Spa + Fitness Center",
+    how: "Up 7 decks → Deck 12 FORWARD",
+    q: false
+  }, {
+    dest: "Mini Golf + Jogging Track",
+    how: "Up 9 decks → Deck 14",
+    q: false
+  }];
+  const legend = [{
+    c: "#E24B4A",
+    l: "Your cabin"
+  }, {
+    c: "#B5D4F4",
+    l: "Cabins"
+  }, {
+    c: "#F4C0D1",
+    l: "MDR dining"
+  }, {
+    c: "#C0DD97",
+    l: "Free food"
+  }, {
+    c: "#85B7EB",
+    l: "Pool"
+  }, {
+    c: "#378ADD",
+    l: "WaterWorks"
+  }, {
+    c: "#CECBF6",
+    l: "Entertainment"
+  }, {
+    c: "#FAC775",
+    l: "Bars"
+  }, {
+    c: "#9FE1CB",
+    l: "Spa/svcs"
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "20px 16px 90px"
+    },
+    className: "fade-up"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "linear-gradient(135deg, #3d1208, #7c2d12)",
+      border: "1px solid rgba(251,146,60,0.3)",
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "Your Stateroom"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 22,
+      color: "var(--cream)",
+      marginBottom: 2
+    }
+  }, "Cabin M218"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#fca5a5",
+      marginBottom: 14
+    }
+  }, "Deck 5 \xB7 Main \xB7 Portside \xB7 AFT \xB7 Oceanview"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 8
+    }
+  }, [["Guests", "Desiree, Jason & Camden"], ["Window", "Picture window — ocean view"], ["Location", "Back of ship, left (port) side"], ["MDR Location", "Deck 8 — 3 floors up!"]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: {
+      background: "rgba(255,255,255,0.1)",
+      borderRadius: 8,
+      padding: "6px 11px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      color: "rgba(255,255,255,0.5)",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 2
+    }
+  }, l), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: "#fff"
+    }
+  }, v))))), /*#__PURE__*/React.createElement(SectionLabel, null, "Select a Deck"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 6,
+      marginBottom: 14
+    }
+  }, MAP_DECKS.map((dk, i) => /*#__PURE__*/React.createElement("button", {
+    key: dk.id,
+    onClick: () => setActiveDeck(i),
+    style: {
+      padding: "7px 12px",
+      fontSize: 11,
+      fontFamily: "var(--sans)",
+      fontWeight: 600,
+      cursor: "pointer",
+      borderRadius: 8,
+      background: i === activeDeck ? dk.mine ? "rgba(239,68,68,0.2)" : "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
+      border: i === activeDeck ? dk.mine ? "1px solid rgba(239,68,68,0.5)" : "1px solid var(--border)" : "1px solid rgba(255,255,255,0.08)",
+      color: i === activeDeck ? dk.mine ? "#fca5a5" : "var(--gold2)" : "var(--muted)",
+      transition: "all 0.15s"
+    }
+  }, dk.mine ? "★ " : "", dk.id === "12F" ? "D12 Fwd" : dk.id === "12A" ? "D12 Aft" : `D${dk.id}`))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "var(--navy2)",
+      border: `1px solid ${d.mine ? "rgba(239,68,68,0.3)" : "var(--border)"}`,
+      borderRadius: 14,
+      overflow: "hidden",
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "12px 16px",
+      background: "rgba(0,0,0,0.2)",
+      borderBottom: "1px solid rgba(255,255,255,0.06)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 16,
+      color: d.mine ? "#fca5a5" : "var(--cream)"
+    }
+  }, d.label)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 14,
+      background: "rgba(0,0,0,0.3)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      fontSize: 9,
+      color: "var(--muted)",
+      letterSpacing: 1.5,
+      textTransform: "uppercase",
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u25C4 BOW (front)"), /*#__PURE__*/React.createElement("span", null, "AFT (back) \u25BA")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 5,
+      alignItems: "stretch"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      fontWeight: 600,
+      color: "var(--muted)",
+      writingMode: "vertical-rl",
+      display: "flex",
+      alignItems: "center",
+      padding: "0 2px",
+      textTransform: "uppercase",
+      letterSpacing: 1.5,
+      flexShrink: 0,
+      fontFamily: "var(--sans)"
+    }
+  }, "PORT"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement(Lane, {
+    zones: d.port
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 7,
+      background: "rgba(255,255,255,0.04)",
+      border: "0.5px solid rgba(255,255,255,0.06)",
+      borderRadius: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 6,
+      color: "#1e293b",
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      fontFamily: "var(--sans)"
+    }
+  }, "hallway / center")), /*#__PURE__*/React.createElement(Lane, {
+    zones: d.stbd
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      fontWeight: 600,
+      color: "var(--muted)",
+      writingMode: "vertical-rl",
+      display: "flex",
+      alignItems: "center",
+      padding: "0 2px",
+      textTransform: "uppercase",
+      letterSpacing: 1.5,
+      flexShrink: 0,
+      transform: "rotate(180deg)",
+      fontFamily: "var(--sans)"
+    }
+  }, "STBD"))), d.note && /*#__PURE__*/React.createElement("div", {
+    style: {
+      margin: "0 14px 14px",
+      padding: "9px 12px",
+      background: "rgba(201,168,76,0.06)",
+      border: "1px solid rgba(201,168,76,0.15)",
+      borderRadius: 8,
+      fontSize: 11,
+      color: "var(--gold3)",
+      lineHeight: 1.6
+    }
+  }, "\uD83D\uDCA1 ", d.note), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "var(--muted)",
+      padding: "4px 14px 8px"
+    }
+  }, "Hover any zone for details"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 6,
+      padding: "8px 14px",
+      borderTop: "1px solid rgba(255,255,255,0.05)"
+    }
+  }, legend.map(le => /*#__PURE__*/React.createElement("div", {
+    key: le.l,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
+      fontSize: 10,
+      color: "var(--muted)",
+      fontFamily: "var(--sans)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 10,
+      height: 10,
+      borderRadius: 2,
+      background: le.c,
+      flexShrink: 0
+    }
+  }), le.l)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "var(--navy2)",
+      border: "1px solid var(--border)",
+      borderRadius: 14,
+      overflow: "hidden",
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "12px 16px",
+      borderBottom: "1px solid rgba(255,255,255,0.06)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 15,
+      color: "var(--cream)"
+    }
+  }, "From M218 \u2014 Getting Everywhere")), navRows.map((r, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "nav-row"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "var(--text)",
+      fontFamily: "var(--sans)"
+    }
+  }, r.dest), /*#__PURE__*/React.createElement("div", {
+    className: "nav-pill",
+    style: {
+      fontSize: 10,
+      color: r.q ? "#86efac" : "var(--gold2)",
+      background: r.q ? "rgba(34,197,94,0.08)" : "rgba(201,168,76,0.08)",
+      border: r.q ? "1px solid rgba(34,197,94,0.2)" : "1px solid var(--border)"
+    }
+  }, r.how)))), /*#__PURE__*/React.createElement("a", {
+    href: "https://www.carnival.com/-/media/5476ab9b6a344c848f1eb64e47665674.ashx",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 6,
+      padding: "13px",
+      borderRadius: 10,
+      background: "rgba(201,168,76,0.08)",
+      border: "1px solid var(--border)",
+      color: "var(--gold2)",
+      fontSize: 12,
+      textDecoration: "none",
+      fontFamily: "var(--sans)",
+      fontWeight: 500
+    }
+  }, "\u2192 Official Carnival Paradise PDF Deck Plan"));
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────
+
+function App() {
+  const [tab, setTab] = useState("dinners");
+  const [openDinner, setOpenDinner] = useState(null);
+  const [openFree, setOpenFree] = useState(null);
+  const [openSpec, setOpenSpec] = useState(null);
+  const [activeDeck, setActiveDeck] = useState(9); // index 9 = Deck 5 (your cabin)
+
+  const tabs = [{
+    id: "dinners",
+    label: "🍽️ Dinners"
+  }, {
+    id: "free",
+    label: "🍔 Free Food"
+  }, {
+    id: "specialty",
+    label: "⭐ Special"
+  }, {
+    id: "soda",
+    label: "🍹 Zero Proof"
+  }, {
+    id: "map",
+    label: "🗺️ Ship Map"
+  }];
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--sans)",
+      background: "var(--navy)",
+      minHeight: "100vh",
+      color: "var(--text)",
+      maxWidth: 480,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement(GlobalStyles, null), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "linear-gradient(160deg, #0f2040 0%, #0a1628 60%)",
+      borderBottom: "1px solid var(--border)",
+      padding: "24px 20px 18px",
+      position: "relative",
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(201,168,76,0.04) 40px, rgba(201,168,76,0.04) 41px)",
+      pointerEvents: "none"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "May 1\u20137, 2026 \xB7 Tampa to Nassau"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "var(--serif)",
+      fontSize: 26,
+      fontStyle: "italic",
+      color: "var(--cream)",
+      marginBottom: 2,
+      lineHeight: 1.1
+    }
+  }, "Carnival Paradise"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "var(--muted)",
+      marginBottom: 16
+    }
+  }, "Complete Guide \xB7 Verified March 2026"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, [{
+    l: "Cabin",
+    v: "M218 · Deck 5 · AFT"
+  }, {
+    l: "Guests",
+    v: "Neff Family × 3"
+  }, {
+    l: "Free Lobster",
+    v: "Night 5 🦞"
+  }, {
+    l: "WiFi",
+    v: "Premium ✓"
+  }].map(b => /*#__PURE__*/React.createElement("div", {
+    key: b.l,
+    style: {
+      background: "var(--mist)",
+      border: "1px solid var(--border)",
+      borderRadius: 8,
+      padding: "5px 11px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8,
+      color: "var(--muted)",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginBottom: 1
+    }
+  }, b.l), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: "var(--gold2)"
+    }
+  }, b.v)))))), /*#__PURE__*/React.createElement("div", {
+    className: "tab-bar",
+    style: {
+      display: "flex",
+      background: "var(--navy2)",
+      borderBottom: "1px solid var(--border)",
+      overflowX: "auto",
+      position: "sticky",
+      top: 0,
+      zIndex: 10
+    }
+  }, tabs.map(t => /*#__PURE__*/React.createElement("button", {
+    key: t.id,
+    onClick: () => setTab(t.id),
+    style: {
+      flex: "1 0 auto",
+      padding: "13px 8px",
+      background: tab === t.id ? "var(--mist)" : "transparent",
+      borderBottom: tab === t.id ? "2px solid var(--gold)" : "2px solid transparent",
+      border: "none",
+      borderBottom: tab === t.id ? "2px solid var(--gold)" : "2px solid transparent",
+      cursor: "pointer",
+      fontFamily: "var(--sans)",
+      fontSize: 11,
+      fontWeight: tab === t.id ? 600 : 400,
+      color: tab === t.id ? "var(--gold2)" : "var(--muted)",
+      transition: "all 0.2s",
+      whiteSpace: "nowrap"
+    }
+  }, t.label))), tab === "dinners" && /*#__PURE__*/React.createElement(DinnersTab, {
+    openDinner: openDinner,
+    setOpenDinner: setOpenDinner
+  }), tab === "free" && /*#__PURE__*/React.createElement(FreeDiningTab, {
+    openFree: openFree,
+    setOpenFree: setOpenFree
+  }), tab === "specialty" && /*#__PURE__*/React.createElement(SpecialTab, {
+    openSpec: openSpec,
+    setOpenSpec: setOpenSpec
+  }), tab === "soda" && /*#__PURE__*/React.createElement(SodaTab, null), tab === "map" && /*#__PURE__*/React.createElement(MapTab, {
+    activeDeck: activeDeck,
+    setActiveDeck: setActiveDeck
+  }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
