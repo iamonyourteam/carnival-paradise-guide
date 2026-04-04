@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carnival Paradise — Neff Family Cruise 2026</title>
   <meta name="theme-color" content="#0a1628" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -24,7 +24,8 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script>
 const {
-  useState
+  useState,
+  useEffect
 } = React;
 
 // ─── SHIP DECK DATA ───────────────────────────────────────────────
@@ -38,13 +39,13 @@ const DECKS = [{
   num: 14,
   name: "Grand Deck",
   color: "#075985",
-  venues: ["⛳ Mini Golf (9-hole) ← FREE", "Bocce Court", "Jogging Track", "Grand Vista Suites", "Spa & Fitness Center"],
+  venues: ["⛳ Mini Golf (9-hole)", "Bocce Court", "Jogging Track", "Grand Vista Suites", "Spa & Fitness Center"],
   yourDeck: false
 }, {
   num: 12,
   name: "Sports Deck",
   color: "#0369a1",
-  venues: ["🏊 Main Pool + 7 Hot Tubs", "🎭 Camp Ocean (FWD) ← kids club FREE", "Basketball hoop", "Shuffleboard"],
+  venues: ["🏊 Main Pool + 7 Hot Tubs", "🎭 Camp Ocean (FWD) ← kids club", "Basketball hoop", "Shuffleboard"],
   yourDeck: false
 }, {
   num: 11,
@@ -56,7 +57,7 @@ const DECKS = [{
   num: 10,
   name: "Lido Deck",
   color: "#1d4ed8",
-  venues: ["🍔 Guy's Burger Joint ← FREE", "🌮 BlueIguana Cantina ← FREE", "🍕 Pizza Pirate (24/7) ← FREE", "🍦 Swirls Ice Cream ← FREE", "Paris Buffet ← FREE", "RedFrog Rum Bar", "BlueIguana Tequila Bar"],
+  venues: ["🍔 Guy's Burger Joint", "🌮 BlueIguana Cantina", "🍕 Pizza Pirate (24/7)", "🍦 Swirls Ice Cream", "Paris Buffet", "RedFrog Rum Bar", "BlueIguana Tequila Bar"],
   yourDeck: false
 }, {
   num: 9,
@@ -136,13 +137,13 @@ const MAP_DECKS = [
     c: MC.food,
     t: MC.foodT,
     f: 7,
-    tip: "FREE 9-hole mini golf course — forward/mid. Bright colors, great views over the pool deck below."
+    tip: "9-hole mini golf course — forward/mid. Bright colors, great views over the pool deck below."
   }, {
     l: "Jogging\nTrack",
     c: MC.spa,
     t: MC.spaT,
     f: 3,
-    tip: "FREE jogging track — wraps around mini golf. 8 laps = 1 mile."
+    tip: "Jogging track — wraps around mini golf. 8 laps = 1 mile."
   }, {
     l: "Open\ndeck AFT",
     c: MC.crew,
@@ -184,7 +185,7 @@ const MAP_DECKS = [
     c: MC.spa,
     t: MC.spaT,
     f: 3,
-    tip: "FREE Fitness Center — FORWARD. Weights, treadmills, ellipticals, Kinesis wall, floor-to-ceiling windows."
+    tip: "Fitness Center — FORWARD. Weights, treadmills, ellipticals, Kinesis wall, floor-to-ceiling windows."
   }, {
     l: "Sauna\n+ Steam",
     c: MC.spa,
@@ -209,7 +210,7 @@ const MAP_DECKS = [
     c: MC.spa,
     t: MC.spaT,
     f: 3,
-    tip: "Fitness Studio — group classes. FREE: aerobics, abs, stretching, Tai Chi. Fee: yoga, Pilates, cycling, boot camp."
+    tip: "Fitness Studio — group classes. Included: aerobics, abs, stretching, Tai Chi. $ fee: yoga, Pilates, cycling, boot camp."
   }, {
     l: "Massage\nRooms",
     c: MC.spa,
@@ -227,7 +228,7 @@ const MAP_DECKS = [
     c: MC.mdr,
     t: MC.mdrT,
     f: 3,
-    tip: "Camp Ocean — FREE kids club ages 2–11. Penguins (2-5), Stingrays (6-8), Sharks (9-11). Also Circle C tweens (12-14)."
+    tip: "Camp Ocean — kids club ages 2–11. Penguins (2-5), Stingrays (6-8), Sharks (9-11). Also Circle C tweens (12-14)."
   }]
 },
 // ── DECK 12 AFT — SPORTS (WATERWORKS SLIDE ENTRY) ───────────────
@@ -331,7 +332,7 @@ const MAP_DECKS = [
 //               Buffet stations, Deli, Dessert Station, Pizzeria AFT
 {
   id: 10,
-  label: "Deck 10 — Lido (all free food!)",
+  label: "Deck 10 — Lido",
   mine: false,
   note: "Bridge at far front (crew only). Resort Pool is MID-SHIP with the Lido stage. BlueIguana + Guy's Burger are poolside. Paris Lido Restaurant (buffet) runs the AFT half with Deli, Dessert Station, and Pizzeria.",
   port: [{
@@ -357,13 +358,13 @@ const MAP_DECKS = [
     c: MC.food,
     t: MC.foodT,
     f: 3,
-    tip: "BlueIguana Cantina — FREE. Breakfast burritos + tacos in AM. Lunch tacos/burritos. Open breakfast + lunch only."
+    tip: "BlueIguana Cantina — Breakfast burritos + tacos in AM. Lunch tacos/burritos. Open breakfast + lunch only."
   }, {
     l: "Paris Lido\nRestaurant\nBuffet AFT",
     c: MC.food,
     t: MC.foodT,
     f: 3,
-    tip: "Paris Lido Restaurant (buffet) — FREE. Breakfast, Lunch, Dinner, Late Night. Deli + Dessert Station + Pizzeria all inside."
+    tip: "Paris Lido Restaurant (buffet) — Breakfast, Lunch, Dinner, Late Night. Deli + Dessert Station + Pizzeria all inside."
   }],
   stbd: [{
     l: "Bridge\ncrew only",
@@ -388,7 +389,7 @@ const MAP_DECKS = [
     c: MC.food,
     t: MC.foodT,
     f: 2,
-    tip: "Guy's Burger Joint — FREE! MID-SHIP poolside. Guy Fieri burgers + hand-cut fries. Open lunch."
+    tip: "Guy's Burger Joint — MID-SHIP poolside. Guy Fieri burgers + hand-cut fries. Open lunch."
   }, {
     l: "Paris Lido\nRestaurant\nAFT",
     c: MC.food,
@@ -433,7 +434,7 @@ const MAP_DECKS = [
     c: MC.bar,
     t: MC.barT,
     f: 2,
-    tip: "JavaBlue Café — specialty coffees, lattes, cappuccinos, pastries. Fee."
+    tip: "JavaBlue Café — specialty coffees, lattes, cappuccinos, pastries. $ per item."
   }, {
     l: "Rotterdam\nBar + Rex\nDance Club",
     c: MC.ent,
@@ -464,7 +465,7 @@ const MAP_DECKS = [
     c: MC.food,
     t: MC.foodT,
     f: 2,
-    tip: "Bonsai Sushi Express — a-la-carte, fee. Sushi rolls, sashimi, specialties. MID-SHIP."
+    tip: "Bonsai Sushi Express — $ à la carte. Sushi rolls, sashimi, specialties. MID-SHIP."
   }, {
     l: "Majestic\nCasino 🎰\nMID",
     c: MC.bar,
@@ -482,7 +483,7 @@ const MAP_DECKS = [
     c: MC.spa,
     t: MC.spaT,
     f: 2,
-    tip: "Serenity Adult Retreat (21+) — AFT outdoor. 2 hot tubs, padded loungers, umbrellas. FREE. Accessed via Queen Mary Lounge."
+    tip: "Serenity Adult Retreat (21+) — AFT outdoor. 2 hot tubs, padded loungers, umbrellas. Accessed via Queen Mary Lounge."
   }]
 },
 // ── DECK 8 — ATLANTIC ───────────────────────────────────────────
@@ -521,7 +522,7 @@ const MAP_DECKS = [
     c: MC.mdr,
     t: MC.mdrT,
     f: 4,
-    tip: "ELATION DINING ROOM — FREE multi-course dinners every night. Also port day breakfast 7-9am + sea day brunch 8:30am-noon. This is Deck 8, mid-aft."
+    tip: "ELATION DINING ROOM — multi-course dinners every night. Port day breakfast 7–9am + sea day brunch 8:30am–noon. Deck 8, mid-aft."
   }],
   stbd: [{
     l: "Normandie\nMain Lounge\n(theater) FWD",
@@ -546,7 +547,7 @@ const MAP_DECKS = [
     c: MC.mdr,
     t: MC.mdrT,
     f: 4,
-    tip: "DESTINY DINING ROOM — FREE multi-course dinners every night. AFT on Deck 8. Port day breakfast + sea day brunch also here."
+    tip: "DESTINY DINING ROOM — multi-course dinners every night. AFT on Deck 8. Port day breakfast + sea day brunch also here."
   }]
 },
 // ── DECK 7 — EMPRESS ────────────────────────────────────────────
@@ -818,13 +819,13 @@ const dinners = [{
   num: 5,
   date: "Tue May 5 (Nassau)",
   elegant: true,
-  theme: "Elegant Night #2 — FREE LOBSTER 🦞",
+  theme: "Elegant Night #2 — Lobster Night 🦞",
   menuLink: LINKS.mdrNew2026,
   starters: ["Seafood Bisque — shrimp, scallop, crab", "Beef Carpaccio — truffle oil, arugula", "Endive & Walnut Salad — gorgonzola", "Oysters Rockefeller"],
-  mains: ["🦞 LOBSTER TAIL — complimentary! First 2 per person are FREE, $5 each after", "Prime Rib — au jus, horseradish, Yorkshire pudding", "Lamb Chops — herb crusted, mint jelly", "Pan-Seared Duck Breast — cherry reduction", "Portobello Wellington (vegan)"],
+  mains: ["🦞 LOBSTER TAIL — first 2 per person included, $5 each after", "Prime Rib — au jus, horseradish, Yorkshire pudding", "Lamb Chops — herb crusted, mint jelly", "Pan-Seared Duck Breast — cherry reduction", "Portobello Wellington (vegan)"],
   desserts: ["🔥 Baked Alaska", "Chocolate Lava Cake", "Vanilla Panna Cotta", "Strawberry Shortcake"],
   dress: "ELEGANT — same as Night 2. Dress up for lobster night!",
-  note: "THE night of the cruise. Order the lobster — it's free! Get two if you want."
+  note: "THE night of the cruise. Order the lobster — it's included! Get two."
 }, {
   num: 6,
   date: "Wed May 6 (Final Sea Day)",
@@ -844,7 +845,7 @@ const freeDining = [{
   hours: "Sea days — Lunch & Dinner",
   link: LINKS.guysMenu,
   linkLabel: "Open PDF Menu ↗",
-  badge: "FREE",
+  badge: null,
   highlight: "Celebrity Chef Guy Fieri's poolside burgers",
   items: [{
     n: "The Plain Jane",
@@ -877,7 +878,7 @@ const freeDining = [{
   hours: "Breakfast & Lunch daily",
   link: LINKS.blueIguanaLunch,
   linkLabel: "Open PDF Menu ↗",
-  badge: "FREE",
+  badge: null,
   highlight: "Fresh tortillas made to order — watch them be made!",
   items: [{
     n: "Breakfast Tacos",
@@ -904,7 +905,7 @@ const freeDining = [{
   hours: "Lunch & Dinner daily",
   link: LINKS.deliMenu,
   linkLabel: "Open PDF Menu ↗",
-  badge: "FREE",
+  badge: null,
   highlight: "Hot & cold freshly-made sandwiches",
   items: [{
     n: "Reuben",
@@ -931,7 +932,7 @@ const freeDining = [{
   hours: "Open 24 hours — ALWAYS available",
   link: "https://www.carnival.com/-/media/images/explore/dining/menus/pizzeria-del-capitano-menu.pdf",
   linkLabel: "Open PDF Menu ↗",
-  badge: "FREE 24/7",
+  badge: null,
   highlight: "Open all night — best post-comedy-show snack on the ship",
   items: [{
     n: "Margherita",
@@ -955,7 +956,7 @@ const freeDining = [{
   hours: "Breakfast, Lunch & Dinner",
   link: "https://www.carnival.com/-/media/images/explore/dining/menus/seaday-brunch-menu.pdf",
   linkLabel: "Open Sea Day Brunch PDF ↗",
-  badge: "FREE",
+  badge: null,
   highlight: "Widest variety — hot dishes, carving station, salad bar, international options",
   items: [{
     n: "Breakfast",
@@ -977,7 +978,7 @@ const freeDining = [{
 }, {
   name: "Swirls Ice Cream 🍦",
   hours: "All day until midnight — self serve",
-  badge: "FREE",
+  badge: null,
   highlight: "Unlimited, always there — grab a cone between any activity",
   items: [{
     n: "Chocolate Soft Serve",
@@ -1024,9 +1025,9 @@ const specialtyDining = [{
   link: "https://profcruise.com/carnival-6-night-dinner-menus-updated/",
   linkLabel: "MDR Menu Guide",
   description: "Add premium steakhouse-quality cuts to your regular MDR dinner — no need to leave your table. Order a Filet Mignon or Surf & Turf in addition to your free MDR courses. It's the easiest upgrade on the ship.",
-  highlights: ["Available every night in the Main Dining Room", "No separate reservation needed", "Filet Mignon (9 oz), Surf & Turf, or Broiled Lobster Tail", "Served alongside your free MDR starters and desserts", "Just tell your waiter when ordering"],
-  menu_note: "Available every night in the MDR. On Night 5 (Elegant Night / Lobster Night), lobster is FREE — so skip the upgrade that night and save $25!",
-  best_night: "Best on Night 3 (casual Caribbean night) or Night 6 (farewell dinner) — skip Night 5 since lobster is already free.",
+  highlights: ["Available every night in the Main Dining Room", "No separate reservation needed", "Filet Mignon (9 oz), Surf & Turf, or Broiled Lobster Tail", "Served alongside your MDR starters and desserts", "Just tell your waiter when ordering"],
+  menu_note: "Available every night in the MDR. On Night 5 (Elegant Night / Lobster Night), lobster is included — skip the upgrade that night and save $25!",
+  best_night: "Best on Night 3 (casual Caribbean night) or Night 6 (farewell dinner) — skip Night 5 since lobster is included.",
   book: "No advance booking needed — tell your server when you sit down.",
   verdict: "⭐⭐⭐⭐ Best value: adds luxury to a meal you're already having, for just $25/person."
 }, {
@@ -1079,14 +1080,8 @@ const mdrInfo = [{
   label: "Elation Restaurant",
   detail: "Second main dining room — same menus as Destiny, different location"
 }, {
-  label: "Early Seating",
-  detail: "5:00 PM fixed — same table, same waiter every night"
-}, {
-  label: "Late Seating",
-  detail: "7:45 PM fixed — same table, same waiter every night"
-}, {
-  label: "Anytime Dining",
-  detail: "5:00–9:00 PM — flexible, seat yourself each night"
+  label: "Your Dining Style",
+  detail: "Anytime Dining — 5:00–9:00 PM, flexible seating each night"
 }, {
   label: "Port Day Breakfast",
   detail: "7:00–9:00 AM in MDR — quieter than the buffet"
@@ -1098,16 +1093,16 @@ const mdrInfo = [{
   detail: "3:00–4:00 PM — light snacks in the MDR"
 }, {
   label: "Entrees",
-  detail: "Up to 2 free per person per night — 3rd+ is $5 each"
+  detail: "Up to 2 per person per night — 3rd+ is $5 each"
 }, {
   label: "Appetizers",
-  detail: "UNLIMITED and free — order as many as you want"
+  detail: "Unlimited — order as many as you want"
 }, {
   label: "Desserts",
-  detail: "UNLIMITED and free — the Melting Cake is famous"
+  detail: "Unlimited — the Melting Cake is famous"
 }, {
   label: "Lobster Night",
-  detail: "Night 5 (Elegant Night #2) — first 2 tails FREE, $5 each after"
+  detail: "Night 5 (Elegant Night #2) — first 2 tails included, $5 each after"
 }];
 
 // ─── FONTS & GLOBAL STYLES injected once ─────────────────────────
@@ -1259,7 +1254,7 @@ function DinnersTab({
     style: {
       color: "var(--gold2)"
     }
-  }, "free lobster \uD83E\uDD9E"), ". Day 7 is disembark \u2014 breakfast only, no dinner."), /*#__PURE__*/React.createElement("div", {
+  }, "lobster night \uD83E\uDD9E"), ". Day 7 is disembark \u2014 breakfast only, no dinner."), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -1538,13 +1533,13 @@ function FreeDiningTab({
     style: {
       marginBottom: 18
     }
-  }, /*#__PURE__*/React.createElement(SectionLabel, null, "Always Free \u2014 No Extra Charge"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(SectionLabel, null, "All-Included Dining"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "var(--serif)",
       fontSize: 18,
       color: "var(--cream)"
     }
-  }, "All Included Dining")), /*#__PURE__*/React.createElement("div", {
+  }, "Included With Your Cruise")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -1881,7 +1876,7 @@ function SodaTab() {
       gap: 8,
       flexWrap: "wrap"
     }
-  }, [["Per Person/Day", "~$29.99 + 20% svc"], ["3 People × 6 Days", "~$648 total"], ["All Cabins", "Not required for all"], ["Best For", "Non-drinkers & Camden"]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
+  }, [["$ Package", "Paid add-on"], ["Flexibility", "Not required for all"], ["Best For", "Non-drinkers & Camden"]].map(([l, v]) => /*#__PURE__*/React.createElement("div", {
     key: l,
     style: {
       background: "rgba(255,255,255,0.05)",
@@ -1980,36 +1975,10 @@ function MapTab({
   setActiveDeck
 }) {
   const d = MAP_DECKS[activeDeck];
-  const Lane = ({
-    zones
-  }) => /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 2,
-      height: 58
-    }
-  }, zones.map((z, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    className: "dzone",
-    style: {
-      flex: z.f,
-      background: z.c,
-      borderRadius: 4,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2px 3px"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "dzone-txt",
-    style: {
-      color: z.t
-    }
-  }, z.l), /*#__PURE__*/React.createElement("span", {
-    className: "dtip"
-  }, z.tip))));
+  const [activeTip, setActiveTip] = useState(null);
+  useEffect(() => { setActiveTip(null); }, [activeDeck]);
   const navRows = [{
-    dest: "Destiny / Elation MDR (free dinners)",
+    dest: "Destiny / Elation MDR (dinners)",
     how: "Up 3 decks → Deck 8 AFT",
     q: true
   }, {
@@ -2064,34 +2033,6 @@ function MapTab({
     dest: "Mini Golf + Jogging Track",
     how: "Up 9 decks → Deck 14",
     q: false
-  }];
-  const legend = [{
-    c: "#E24B4A",
-    l: "Your cabin"
-  }, {
-    c: "#B5D4F4",
-    l: "Cabins"
-  }, {
-    c: "#F4C0D1",
-    l: "MDR dining"
-  }, {
-    c: "#C0DD97",
-    l: "Free food"
-  }, {
-    c: "#85B7EB",
-    l: "Pool"
-  }, {
-    c: "#378ADD",
-    l: "WaterWorks"
-  }, {
-    c: "#CECBF6",
-    l: "Entertainment"
-  }, {
-    c: "#FAC775",
-    l: "Bars"
-  }, {
-    c: "#9FE1CB",
-    l: "Spa/svcs"
   }];
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2177,140 +2118,70 @@ function MapTab({
       marginBottom: 16
     }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "12px 16px",
-      background: "rgba(0,0,0,0.2)",
-      borderBottom: "1px solid rgba(255,255,255,0.06)"
-    }
+    style: { padding: "12px 16px", background: "rgba(0,0,0,0.2)", borderBottom: "1px solid rgba(255,255,255,0.06)" }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: "var(--serif)",
-      fontSize: 16,
-      color: d.mine ? "#fca5a5" : "var(--cream)"
-    }
+    style: { fontFamily: "var(--serif)", fontSize: 16, color: d.mine ? "#fca5a5" : "var(--cream)" }
   }, d.label)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: 14,
-      background: "rgba(0,0,0,0.3)"
-    }
+    style: { padding: 14 }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 9,
-      color: "var(--muted)",
-      letterSpacing: 1.5,
-      textTransform: "uppercase",
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\u25C4 BOW (front)"), /*#__PURE__*/React.createElement("span", null, "AFT (back) \u25BA")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 5,
-      alignItems: "stretch"
-    }
+    style: { display: "flex", justifyContent: "space-between", fontSize: 9, color: "var(--muted)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }
+  }, /*#__PURE__*/React.createElement("span", null, "\u25C4 BOW (front)"), /*#__PURE__*/React.createElement("span", null, "AFT (back) \u25BA")),
+  /*#__PURE__*/React.createElement("div", {
+    style: { display: "flex", gap: 5, alignItems: "stretch" }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 8,
-      fontWeight: 600,
-      color: "var(--muted)",
-      writingMode: "vertical-rl",
-      display: "flex",
-      alignItems: "center",
-      padding: "0 2px",
-      textTransform: "uppercase",
-      letterSpacing: 1.5,
-      flexShrink: 0,
-      fontFamily: "var(--sans)"
-    }
-  }, "PORT"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      display: "flex",
-      flexDirection: "column",
-      gap: 5
-    }
-  }, /*#__PURE__*/React.createElement(Lane, {
-    zones: d.port
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 7,
-      background: "rgba(255,255,255,0.04)",
-      border: "0.5px solid rgba(255,255,255,0.06)",
-      borderRadius: 2,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 6,
-      color: "#1e293b",
-      letterSpacing: 3,
-      textTransform: "uppercase",
-      fontFamily: "var(--sans)"
-    }
-  }, "hallway / center")), /*#__PURE__*/React.createElement(Lane, {
-    zones: d.stbd
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 8,
-      fontWeight: 600,
-      color: "var(--muted)",
-      writingMode: "vertical-rl",
-      display: "flex",
-      alignItems: "center",
-      padding: "0 2px",
-      textTransform: "uppercase",
-      letterSpacing: 1.5,
-      flexShrink: 0,
-      transform: "rotate(180deg)",
-      fontFamily: "var(--sans)"
-    }
-  }, "STBD"))), d.note && /*#__PURE__*/React.createElement("div", {
-    style: {
-      margin: "0 14px 14px",
-      padding: "9px 12px",
-      background: "rgba(201,168,76,0.06)",
-      border: "1px solid rgba(201,168,76,0.15)",
-      borderRadius: 8,
-      fontSize: 11,
-      color: "var(--gold3)",
-      lineHeight: 1.6
-    }
+    style: { fontSize: 8, fontWeight: 600, color: "var(--muted)", writingMode: "vertical-rl", display: "flex", alignItems: "center", padding: "0 2px", textTransform: "uppercase", letterSpacing: 1.5, flexShrink: 0, fontFamily: "var(--sans)" }
+  }, "PORT"),
+  /*#__PURE__*/React.createElement("div", {
+    style: { flex: 1, display: "flex", flexDirection: "column", gap: 5 }
+  },
+    /*#__PURE__*/React.createElement("div", { style: { display: "flex", gap: 2, height: 64 } },
+      d.port.map((z, i) => {
+        const key = "p" + i;
+        const isActive = activeTip && activeTip.key === key;
+        return /*#__PURE__*/React.createElement("button", {
+          key: i,
+          onClick: () => setActiveTip(isActive ? null : { key, l: z.l, tip: z.tip, c: z.c }),
+          style: { flex: z.f, background: z.c, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", padding: "2px 3px", border: isActive ? "2px solid rgba(255,255,255,0.9)" : "2px solid transparent", cursor: "pointer", transition: "border 0.15s", outline: "none" }
+        }, /*#__PURE__*/React.createElement("span", {
+          style: { fontSize: 10, fontWeight: 600, textAlign: "center", lineHeight: 1.25, pointerEvents: "none", fontFamily: "var(--sans)", color: z.t }
+        }, z.l));
+      })
+    ),
+    /*#__PURE__*/React.createElement("div", {
+      style: { height: 7, background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(255,255,255,0.06)", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }
+    }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 7, color: "rgba(255,255,255,0.2)", letterSpacing: 2, textTransform: "uppercase", fontFamily: "var(--sans)" } }, "hallway")),
+    /*#__PURE__*/React.createElement("div", { style: { display: "flex", gap: 2, height: 64 } },
+      d.stbd.map((z, i) => {
+        const key = "s" + i;
+        const isActive = activeTip && activeTip.key === key;
+        return /*#__PURE__*/React.createElement("button", {
+          key: i,
+          onClick: () => setActiveTip(isActive ? null : { key, l: z.l, tip: z.tip, c: z.c }),
+          style: { flex: z.f, background: z.c, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", padding: "2px 3px", border: isActive ? "2px solid rgba(255,255,255,0.9)" : "2px solid transparent", cursor: "pointer", transition: "border 0.15s", outline: "none" }
+        }, /*#__PURE__*/React.createElement("span", {
+          style: { fontSize: 10, fontWeight: 600, textAlign: "center", lineHeight: 1.25, pointerEvents: "none", fontFamily: "var(--sans)", color: z.t }
+        }, z.l));
+      })
+    )
+  ),
+  /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 8, fontWeight: 600, color: "var(--muted)", writingMode: "vertical-rl", display: "flex", alignItems: "center", padding: "0 2px", textTransform: "uppercase", letterSpacing: 1.5, flexShrink: 0, transform: "rotate(180deg)", fontFamily: "var(--sans)" }
+  }, "STBD")),
+  activeTip && /*#__PURE__*/React.createElement("div", {
+    style: { marginTop: 10, padding: "10px 12px", background: "rgba(0,0,0,0.3)", borderRadius: 8, border: `2px solid ${activeTip.c}`, display: "flex", gap: 8, alignItems: "flex-start" }
+  }, /*#__PURE__*/React.createElement("div", { style: { width: 10, height: 10, borderRadius: 2, background: activeTip.c, flexShrink: 0, marginTop: 2 } }),
+  /*#__PURE__*/React.createElement("div", null,
+    /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, fontWeight: 600, color: "var(--cream)", marginBottom: 3, fontFamily: "var(--sans)" } }, activeTip.l.replace(/\n/g, " ")),
+    /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: "var(--text)", lineHeight: 1.6 } }, activeTip.tip)
+  )),
+  !activeTip && /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontSize: 10, color: "var(--muted)", textAlign: "center", fontFamily: "var(--sans)" } }, "Tap any zone to see details")
+  ), d.note && /*#__PURE__*/React.createElement("div", {
+    style: { margin: "0 14px 14px", padding: "9px 12px", background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)", borderRadius: 8, fontSize: 11, color: "var(--gold3)", lineHeight: 1.6 }
   }, "\uD83D\uDCA1 ", d.note), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "var(--muted)",
-      padding: "4px 14px 8px"
-    }
-  }, "Hover any zone for details"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 6,
-      padding: "8px 14px",
-      borderTop: "1px solid rgba(255,255,255,0.05)"
-    }
-  }, legend.map(le => /*#__PURE__*/React.createElement("div", {
-    key: le.l,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      fontSize: 10,
-      color: "var(--muted)",
-      fontFamily: "var(--sans)"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 10,
-      height: 10,
-      borderRadius: 2,
-      background: le.c,
-      flexShrink: 0
-    }
-  }), le.l)))), /*#__PURE__*/React.createElement("div", {
+    style: { display: "flex", flexWrap: "wrap", gap: 6, padding: "8px 14px", borderTop: "1px solid rgba(255,255,255,0.05)" }
+  }, [{c:"#E24B4A",l:"Your cabin"},{c:"#B5D4F4",l:"Cabins"},{c:"#F4C0D1",l:"MDR"},{c:"#C0DD97",l:"Food"},{c:"#85B7EB",l:"Pool"},{c:"#378ADD",l:"WaterWorks"},{c:"#CECBF6",l:"Entertainment"},{c:"#FAC775",l:"Bars"},{c:"#9FE1CB",l:"Spa/svcs"}].map(le => /*#__PURE__*/React.createElement("div", {
+    key: le.l, style: { display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "var(--muted)", fontFamily: "var(--sans)" }
+  }, /*#__PURE__*/React.createElement("div", { style: { width: 10, height: 10, borderRadius: 2, background: le.c, flexShrink: 0 } }), le.l)))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: "var(--navy2)",
       border: "1px solid var(--border)",
@@ -2370,19 +2241,36 @@ function MapTab({
 
 // ─── MAIN APP ─────────────────────────────────────────────────────
 
+function calcTimeLeft() {
+  const diff = new Date('2026-05-01T12:00:00') - new Date();
+  if (diff <= 0) return null;
+  return {
+    days:    Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours:   Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / (1000 * 60)) % 60),
+    seconds: Math.floor((diff / 1000) % 60),
+  };
+}
+
 function App() {
   const [tab, setTab] = useState("dinners");
   const [openDinner, setOpenDinner] = useState(null);
   const [openFree, setOpenFree] = useState(null);
   const [openSpec, setOpenSpec] = useState(null);
   const [activeDeck, setActiveDeck] = useState(9); // index 9 = Deck 5 (your cabin)
+  const [timeLeft, setTimeLeft] = useState(calcTimeLeft);
+
+  useEffect(() => {
+    const t = setInterval(() => setTimeLeft(calcTimeLeft()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const tabs = [{
     id: "dinners",
     label: "🍽️ Dinners"
   }, {
     id: "free",
-    label: "🍔 Free Food"
+    label: "🍔 Casual Dining"
   }, {
     id: "specialty",
     label: "⭐ Special"
@@ -2421,7 +2309,22 @@ function App() {
     style: {
       position: "relative"
     }
-  }, /*#__PURE__*/React.createElement(SectionLabel, null, "May 1\u20137, 2026 \xB7 Tampa to Nassau"), /*#__PURE__*/React.createElement("div", {
+  }, timeLeft ? /*#__PURE__*/React.createElement("div", {
+    style: { marginBottom: 18 }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { fontFamily: "var(--sans)", fontSize: 9, fontWeight: 600, letterSpacing: 3, textTransform: "uppercase", color: "var(--gold)", marginBottom: 10 }
+  }, "Countdown to Departure \u2014 May 1, 2026"), /*#__PURE__*/React.createElement("div", {
+    style: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }
+  }, [["days","Days"],["hours","Hrs"],["minutes","Min"],["seconds","Sec"]].map(([k,lbl]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    style: { background: "rgba(201,168,76,0.10)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 4px 8px", textAlign: "center" }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: { fontFamily: "var(--serif)", fontSize: 30, fontWeight: 700, color: "var(--gold2)", lineHeight: 1, marginBottom: 4 }
+  }, String(timeLeft[k]).padStart(2,"0")), /*#__PURE__*/React.createElement("div", {
+    style: { fontFamily: "var(--sans)", fontSize: 9, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", color: "var(--muted)" }
+  }, lbl))))) : /*#__PURE__*/React.createElement("div", {
+    style: { textAlign: "center", padding: "14px 0 18px", fontFamily: "var(--serif)", fontSize: 18, color: "var(--gold2)" }
+  }, "You\u2019re on your cruise! \uD83D\uDEA2"), /*#__PURE__*/React.createElement(SectionLabel, null, "May 1\u20137, 2026 \xB7 Tampa to Nassau"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "var(--serif)",
       fontSize: 26,
@@ -2449,7 +2352,7 @@ function App() {
     l: "Guests",
     v: "Neff Family × 3"
   }, {
-    l: "Free Lobster",
+    l: "Lobster Night",
     v: "Night 5 🦞"
   }, {
     l: "WiFi",
